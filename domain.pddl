@@ -6,11 +6,12 @@
     )
     (:predicates
         (criatura-em ?c1 - criatura ?c2 - celula)
-        (turno-ativado)
-        (direita ?c1 ?c2)
-        (esquerda ?c1 ?c2)
-        (cima ?c1 ?c2)
-        (baixo ?c1 ?c2)
+
+        (turno-ativado)    ;True quando o pacman estiver em seu turno
+        (direita ?c1 ?c2)  ;Indentifica se uma célula está à direita de outra
+        (esquerda ?c1 ?c2) ;Indentifica se uma célula está à esquerda de outra
+        (cima ?c1 ?c2)     ;Indentifica se uma célula está acima de outra
+        (baixo ?c1 ?c2)    ;Indentifica se uma célula está abaixo de outra
     
     )
     
@@ -33,7 +34,7 @@
             
             (forall (?outra-celula1 ?outra-celula2 - celula) 
                 (and 
-                    ; Movimento do verde
+                    ; Movimento do fantasma-verde
                     (when 
                         (and 
                             (direita ?outra-celula1 ?outra-celula2)
@@ -45,7 +46,7 @@
                         )
                     ) 
                     
-                    ; Movimento do azul
+                    ; Movimento do fantasma-azul
                     (when 
                         (and 
                             (esquerda ?outra-celula1 ?outra-celula2)
@@ -78,7 +79,7 @@
             
             (forall (?outra-celula1 ?outra-celula2 - celula) 
                 (and 
-                    ; Movimento do verde
+                    ; Movimento do fantasma-verde
                     (when 
                         (and 
                             (esquerda ?outra-celula1 ?outra-celula2)
@@ -90,7 +91,7 @@
                         )
                     ) 
                     
-                    ; Movimento do azul
+                    ; Movimento do fantasma-azul
                     (when 
                         (and 
                             (direita ?outra-celula1 ?outra-celula2)
@@ -123,7 +124,7 @@
             
             (forall (?outra-celula1 ?outra-celula2 - celula) 
                 (and 
-                    ; Movimento do verde
+                    ; Movimento do fantasma-verde
                     (when 
                         (and 
                             (cima ?outra-celula1 ?outra-celula2)
@@ -135,7 +136,7 @@
                         )
                     ) 
                     
-                    ; Movimento do azul
+                    ; Movimento do fantasma-azul
                     (when 
                         (and 
                             (baixo ?outra-celula1 ?outra-celula2)
@@ -168,7 +169,7 @@
             
             (forall (?outra-celula1 ?outra-celula2 - celula) 
                 (and 
-                    ; Movimento do verde
+                    ; Movimento do fantasma-verde
                     (when 
                         (and 
                             (baixo ?outra-celula1 ?outra-celula2)
@@ -180,7 +181,7 @@
                         )
                     ) 
                     
-                    ; Movimento do azul
+                    ; Movimento do fantasma-azul
                     (when 
                         (and 
                             (cima ?outra-celula1 ?outra-celula2)
