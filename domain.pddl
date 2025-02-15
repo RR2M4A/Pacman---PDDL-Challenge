@@ -23,6 +23,7 @@
         (tem-fruta-verde ?c - celula)
         (tem-fruta-vermelha ?c - celula)
         (tem-parede ?c - celula)
+        (tem-celula-branco ?c celula)
         
         ; Fruta ativada
         (fruta-ativada-azul)
@@ -39,8 +40,31 @@
     )
     
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    
-    (:action mover-pacman-direita
+    ; Possibilidades de movimento:
+
+    ; Sem fruta ativada:
+
+    ; .Fruta-azul
+    ; .Fruta-verde
+    ; .Fruta-vermelha
+    ; .Pastilha
+    ; .Célula em branco
+    ; .Parede
+    ; .Portal
+
+    ; Com fruta ativada:
+
+    ; .Fruta-azul
+    ; .Fruta-verde
+    ; .Fruta-vermelha
+    ; .Pastilha
+    ; .Célula em branco
+    ; .Parede
+    ; .Portal
+
+
+    ; Movimento sem fruta ativada, para pastilha
+    (:action mover-pacman-direita-p
     
         :parameters (?c1 ?direita-de-c1 - celula)
         
@@ -48,6 +72,11 @@
             (turno-ativado pacman)
             (criatura-em pacman ?c1)
             (direita ?c1 ?direita-de-c1)
+            (tem-pastilha ?direita-de-c1)
+
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (not (fruta-ativada-vermelha))
         )
         
         :effect (and
@@ -56,146 +85,370 @@
             (turno-ativado fantasma-azul)
             (not (turno-ativado pacman))
             
-            
-            ;Pastilha sem fruta ativada
-            (when 
-                (and 
-                    (tem-pastilha ?direita-de-c1) 
-                    (not (fruta-ativada-azul))
-                    (not (fruta-ativada-verde))
-                    (not (fruta-ativada-vermelha))
-                ) 
-                
-                (not (criatura-em pacman ?c1))
-                (criatura-em pacman ?direita-de-c1)
-                (not (tem-pastilha ?direita-de-c1))
-                (increase (total-cost) 1)
-            )
-            
-            ;Pastilha com fruta ativada
-            (when 
-                (and 
-                    (tem-pastilha ?direita-de-c1) 
-                    (or 
-                        (fruta-ativada-azul) 
-                        (fruta-ativada-verde) 
-                        (fruta-ativada-vermelha)
-                    )
-                ) 
-                
-                (not (criatura-em pacman ?c1))
-                (criatura-em pacman ?direita-de-c1)
-                (not (tem-pastilha ?direita-de-c1))
-                (increase (total-cost) 4)
-            )
-            
-            ;Dummy move com fruta ativada
-            (when 
-                (and 
-                    (tem-parede ?direita-de-c1) 
-                    (or 
-                        (fruta-ativada-azul) 
-                        (fruta-ativada-verde) 
-                        (fruta-ativada-vermelha)
-                    )
-                ) 
-                
-                (increase (total-cost) 8)
-            )
-            
-            ;Dummy move sem fruta ativada
-            (when 
-                (and 
-                    (tem-parede ?direita-de-c1) 
-                    (not (fruta-ativada-azul))
-                    (not (fruta-ativada-verde))
-                    (not (fruta-ativada-vermelha))
-                ) 
-                
-                (increase (total-cost) 4)
-            )
-            
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?direita-de-c1)
+            (not (tem-pastilha ?direita-de-c1))
+            (tem-celula-branco ?direita-de-c1)
+            (increase (total-cost) 1)
         )
     )
+
+    ; Movimento sem fruta ativada, para fruta azul
+    (:action mover-pacman-direita-fa
     
-    (:action mover-pacman-esquerda
+        :parameters (?c1 ?direita-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (direita ?c1 ?direita-de-c1)
+            (tem-fruta-azul ?direita-de-c1)
+            
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (not (fruta-ativada-vermelha))
+        )
+        
+        :effect (and
+
+            (pacman-moveu-direita)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+            
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?direita-de-c1)
+            (not (tem-fruta-azul ?direita-de-c1))
+            (tem-celula-branco ?direita-de-c1)
+            (fruta-ativada-azul)
+            (increase (total-cost) 2)
+        )
+    )
+
+    ; Movimento sem fruta ativada, para fruta vermelha
+    (:action mover-pacman-direita-fva
+    
+        :parameters (?c1 ?direita-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (direita ?c1 ?direita-de-c1)
+            (tem-fruta-vermelha ?direita-de-c1)
+            
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (not (fruta-ativada-vermelha))
+        )
+        
+        :effect (and
+
+            (pacman-moveu-direita)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?direita-de-c1)
+            (not (tem-fruta-vermelha ?direita-de-c1))
+            (tem-celula-branco ?direita-de-c1)
+            (fruta-ativada-vermelha)
+            (increase (total-cost) 2)
+        )
+    )
+
+    ; Movimento sem fruta ativada, para fruta verde
+    (:action mover-pacman-direita-fv
+    
+        :parameters (?c1 ?direita-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (direita ?c1 ?direita-de-c1)
+            (tem-fruta-verde ?direita-de-c1)
+            
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (not (fruta-ativada-vermelha))
+        )
+        
+        :effect (and
+
+            (pacman-moveu-direita)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?direita-de-c1)
+            (not (tem-fruta-verde ?direita-de-c1))
+            (tem-celula-branco ?direita-de-c1)
+            (fruta-ativada-verde)
+            (increase (total-cost) 2)
+        )
+    )
+
+
+    ; Movimento sem fruta ativada, para célula em branco
+    (:action mover-pacman-direita-cb
+    
+        :parameters (?c1 ?direita-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (direita ?c1 ?direita-de-c1)
+            (tem-celula-branco ?direita-de-c1)
+            
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (not (fruta-ativada-vermelha))
+        )
+        
+        :effect (and
+
+            (pacman-moveu-direita)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?direita-de-c1)
+            (increase (total-cost) 2)
+        )
+    )
+
+    ; Movimento sem fruta ativada, para parede (dummy move)
+    (:action mover-pacman-direita-dm
+    
+        :parameters (?c1 ?direita-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (direita ?c1 ?direita-de-c1)
+            (tem-parede ?direita-de-c1)
+            
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (not (fruta-ativada-vermelha))
+        )
+        
+        :effect (and
+
+            (pacman-moveu-direita)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+            (increase (total-cost) 4)
+        )
+    )
+
+    ; Movimento sem fruta ativada, para pastilha
+    (:action mover-pacman-esquerda-p
     
         :parameters (?c1 ?esquerda-de-c1 - celula)
         
         :precondition (and
             (turno-ativado pacman)
             (criatura-em pacman ?c1)
-            (direita ?esquerda-de-c1 ?c1) 
+            (direita ?esquerda-de-c1 ?c1)
+            (tem-pastilha ?esquerda-de-c1)
+
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (not (fruta-ativada-vermelha))
         )
         
         :effect (and
 
-            (not (turno-ativado pacman))
             (pacman-moveu-esquerda)
-            (turno-ativado fantasma-azul) ; Passa o turno pro azul
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
             
-            ;Pastilha sem fruta ativada
-            (when 
-                (and 
-                    (tem-pastilha ?esquerda-de-c1) 
-                    (not (fruta-ativada-azul))
-                    (not (fruta-ativada-verde))
-                    (not (fruta-ativada-vermelha))
-                ) 
-                
-                (not (criatura-em pacman ?c1))
-                (criatura-em pacman ?esquerda-de-c1)
-                (not (tem-pastilha ?esquerda-de-c1))
-                (increase (total-cost) 1)
-            )
-            
-            ;Pastilha com fruta ativada
-            (when 
-                (and 
-                    (tem-pastilha ?esquerda-de-c1) 
-                    (or 
-                        (fruta-ativada-azul) 
-                        (fruta-ativada-verde) 
-                        (fruta-ativada-vermelha)
-                    )
-                ) 
-                
-                (not (criatura-em pacman ?c1))
-                (criatura-em pacman ?esquerda-de-c1)
-                (not (tem-pastilha ?esquerda-de-c1))
-                (increase (total-cost) 4)
-            )
-            
-            ;Dummy move com fruta ativada
-            (when 
-                (and 
-                    (tem-parede ?esquerda-de-c1) 
-                    (or 
-                        (fruta-ativada-azul) 
-                        (fruta-ativada-verde) 
-                        (fruta-ativada-vermelha)
-                    )
-                ) 
-                
-                (increase (total-cost) 8)
-            )
-            
-            ;Dummy move sem fruta ativada
-            (when 
-                (and 
-                    (tem-parede ?esquerda-de-c1) 
-                    (not (fruta-ativada-azul))
-                    (not (fruta-ativada-verde))
-                    (not (fruta-ativada-vermelha))
-                ) 
-                
-                (increase (total-cost) 4)
-            )
-
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?esquerda-de-c1)
+            (not (tem-pastilha ?esquerda-de-c1))
+            (tem-celula-branco ?esquerda-de-c1)
+            (increase (total-cost) 1)
         )
     )
+
+    ; Movimento sem fruta ativada, para fruta azul
+    (:action mover-pacman-esquerda-fa
     
-    (:action mover-pacman-cima
+        :parameters (?c1 ?esquerda-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (direita ?esquerda-de-c1 ?c1)
+            (tem-fruta-azul ?esquerda-de-c1)
+            
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (not (fruta-ativada-vermelha))
+        )
+        
+        :effect (and
+
+            (pacman-moveu-esquerda)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+            
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?esquerda-de-c1)
+            (not (tem-fruta-azul ?esquerda-de-c1))
+            (tem-celula-branco ?esquerda-de-c1)
+            (fruta-ativada-azul)
+            (increase (total-cost) 2)
+        )
+    )
+
+    ; Movimento sem fruta ativada, para fruta vermelha
+    (:action mover-pacman-esquerda-fva
+    
+        :parameters (?c1 ?esquerda-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (direita ?esquerda-de-c1 ?c1)
+            (tem-fruta-vermelha ?esquerda-de-c1)
+            
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (not (fruta-ativada-vermelha))
+        )
+        
+        :effect (and
+
+            (pacman-moveu-esquerda)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?esquerda-de-c1)
+            (not (tem-fruta-vermelha ?esquerda-de-c1))
+            (tem-celula-branco ?esquerda-de-c1)
+            (fruta-ativada-vermelha)
+            (increase (total-cost) 2)
+        )
+    )
+
+    ; Movimento sem fruta ativada, para fruta verde
+    (:action mover-pacman-esquerda-fv
+    
+        :parameters (?c1 ?esquerda-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (direita ?esquerda-de-c1 ?c1)
+            (tem-fruta-verde ?esquerda-de-c1)
+            
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (not (fruta-ativada-vermelha))
+        )
+        
+        :effect (and
+
+            (pacman-moveu-esquerda)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?esquerda-de-c1)
+            (not (tem-fruta-verde ?esquerda-de-c1))
+            (tem-celula-branco ?esquerda-de-c1)
+            (fruta-ativada-verde)
+            (increase (total-cost) 2)
+        )
+    )
+
+
+    ; Movimento sem fruta ativada, para célula em branco
+    (:action mover-pacman-esquerda-cb
+    
+        :parameters (?c1 ?esquerda-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (direita ?esquerda-de-c1 ?c1)
+            (tem-celula-branco ?esquerda-de-c1)
+            
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (not (fruta-ativada-vermelha))
+        )
+        
+        :effect (and
+
+            (pacman-moveu-esquerda)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?esquerda-de-c1)
+            (increase (total-cost) 2)
+        )
+    )
+
+    ; Movimento sem fruta ativada, para parede (dummy move)
+    (:action mover-pacman-esquerda-dm
+    
+        :parameters (?c1 ?esquerda-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (direita ?esquerda-de-c1 ?c1)
+            (tem-parede ?esquerda-de-c1)
+            
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (not (fruta-ativada-vermelha))
+        )
+        
+        :effect (and
+
+            (pacman-moveu-esquerda)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+            (increase (total-cost) 4)
+        )
+    )
+
+    ; Movimento sem fruta ativada, para pastilha
+    (:action mover-pacman-cima-p
+    
+        :parameters (?c1 ?cima-de-c1 - celula)
+
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (cima ?c1 ?cima-de-c1)
+            (tem-pastilha ?cima-de-c1)
+
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (not (fruta-ativada-vermelha))
+        )
+        
+        :effect (and
+
+            (pacman-moveu-cima)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+            
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?cima-de-c1)
+            (not (tem-pastilha ?cima-de-c1))
+            (tem-celula-branco ?cima-de-c1)
+            (increase (total-cost) 1)
+        )
+    )
+
+    ; Movimento sem fruta ativada, para fruta azul
+    (:action mover-pacman-cima-fa
     
         :parameters (?c1 ?cima-de-c1 - celula)
         
@@ -203,75 +456,146 @@
             (turno-ativado pacman)
             (criatura-em pacman ?c1)
             (cima ?c1 ?cima-de-c1)
+            (tem-fruta-azul ?cima-de-c1)
+            
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (not (fruta-ativada-vermelha))
         )
         
         :effect (and
-            (not (turno-ativado pacman))
-            (pacman-moveu-cima)
-            (turno-ativado fantasma-azul) ; Passa o turno pro azul
-            
-            ;Pastilha sem fruta ativada
-            (when 
-                (and 
-                    (tem-pastilha ?cima-de-c1) 
-                    (not (fruta-ativada-azul))
-                    (not (fruta-ativada-verde))
-                    (not (fruta-ativada-vermelha))
-                ) 
-                
-                (not (criatura-em pacman ?c1))
-                (criatura-em pacman ?cima-de-c1)
-                (not (tem-pastilha ?cima-de-c1))
-                (increase (total-cost) 1)
-            )
-            
-            ;Pastilha com fruta ativada
-            (when 
-                (and 
-                    (tem-pastilha ?cima-de-c1) 
-                    (or 
-                        (fruta-ativada-azul) 
-                        (fruta-ativada-verde) 
-                        (fruta-ativada-vermelha)
-                    )
-                ) 
-                
-                (not (criatura-em pacman ?c1))
-                (criatura-em pacman ?cima-de-c1)
-                (not (tem-pastilha ?cima-de-c1))
-                (increase (total-cost) 4)
-            )
-            
-            ;Dummy move com fruta ativada
-            (when 
-                (and 
-                    (tem-parede ?cima-de-c1) 
-                    (or 
-                        (fruta-ativada-azul) 
-                        (fruta-ativada-verde) 
-                        (fruta-ativada-vermelha)
-                    )
-                ) 
-                
-                (increase (total-cost) 8)
-            )
-            
-            ;Dummy move sem fruta ativada
-            (when 
-                (and 
-                    (tem-parede ?cima-de-c1) 
-                    (not (fruta-ativada-azul))
-                    (not (fruta-ativada-verde))
-                    (not (fruta-ativada-vermelha))
-                ) 
-                
-                (increase (total-cost) 4)
-            )
 
+            (pacman-moveu-cima)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+            
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?cima-de-c1)
+            (not (tem-fruta-azul ?cima-de-c1))
+            (tem-celula-branco ?cima-de-c1)
+            (fruta-ativada-azul)
+            (increase (total-cost) 2)
         )
     )
+
+    ; Movimento sem fruta ativada, para fruta vermelha
+    (:action mover-pacman-cima-fva
     
-    (:action mover-pacman-baixo
+        :parameters (?c1 ?cima-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (cima ?c1 ?cima-de-c1)
+            (tem-fruta-vermelha ?cima-de-c1)
+            
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (not (fruta-ativada-vermelha))
+        )
+        
+        :effect (and
+
+            (pacman-moveu-cima)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?cima-de-c1)
+            (not (tem-fruta-vermelha ?cima-de-c1))
+            (tem-celula-branco ?cima-de-c1)
+            (fruta-ativada-vermelha)
+            (increase (total-cost) 2)
+        )
+    )
+
+    ; Movimento sem fruta ativada, para fruta verde
+    (:action mover-pacman-cima-fv
+    
+        :parameters (?c1 ?cima-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (cima ?c1 ?cima-de-c1)
+            (tem-fruta-verde ?cima-de-c1)
+            
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (not (fruta-ativada-vermelha))
+        )
+        
+        :effect (and
+
+            (pacman-moveu-cima)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?cima-de-c1)
+            (not (tem-fruta-verde ?cima-de-c1))
+            (tem-celula-branco ?cima-de-c1)
+            (fruta-ativada-verde)
+            (increase (total-cost) 2)
+        )
+    )
+
+
+    ; Movimento sem fruta ativada, para célula em branco
+    (:action mover-pacman-cima-cb
+    
+        :parameters (?c1 ?cima-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (cima ?c1 ?cima-de-c1)
+            (tem-celula-branco ?cima-de-c1)
+            
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (not (fruta-ativada-vermelha))
+        )
+        
+        :effect (and
+
+            (pacman-moveu-cima)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?cima-de-c1)
+            (increase (total-cost) 2)
+        )
+    )
+
+    ; Movimento sem fruta ativada, para parede (dummy move)
+    (:action mover-pacman-cima-dm
+    
+        :parameters (?c1 ?cima-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (cima ?c1 ?cima-de-c1)
+            (tem-parede ?cima-de-c1)
+            
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (not (fruta-ativada-vermelha))
+        )
+        
+        :effect (and
+
+            (pacman-moveu-cima)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+            (increase (total-cost) 4)
+        )
+    )
+
+    ; Movimento sem fruta ativada, para pastilha
+    (:action mover-pacman-baixo-p
     
         :parameters (?c1 ?baixo-de-c1 - celula)
         
@@ -279,75 +603,963 @@
             (turno-ativado pacman)
             (criatura-em pacman ?c1)
             (cima ?baixo-de-c1 ?c1)
-            (not (tem-parede ?baixo-de-c1))
+            (tem-pastilha ?baixo-de-c1)
+
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (not (fruta-ativada-vermelha))
         )
         
         :effect (and
-            (not (turno-ativado pacman))
+
             (pacman-moveu-baixo)
             (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
             
-            ;Pastilha sem fruta ativada
-            (when 
-                (and 
-                    (tem-pastilha ?baixo-de-c1) 
-                    (not (fruta-ativada-azul))
-                    (not (fruta-ativada-verde))
-                    (not (fruta-ativada-vermelha))
-                ) 
-                
-                (not (criatura-em pacman ?c1))
-                (criatura-em pacman ?baixo-de-c1)
-                (not (tem-pastilha ?baixo-de-c1))
-                (increase (total-cost) 1)
-            )
-            
-            ;Pastilha com fruta ativada
-            (when 
-                (and 
-                    (tem-pastilha ?baixo-de-c1) 
-                    (or 
-                        (fruta-ativada-azul) 
-                        (fruta-ativada-verde) 
-                        (fruta-ativada-vermelha)
-                    )
-                ) 
-                
-                (not (criatura-em pacman ?c1))
-                (criatura-em pacman ?baixo-de-c1)
-                (not (tem-pastilha ?baixo-de-c1))
-                (increase (total-cost) 4)
-            )
-            
-            ;Dummy move com fruta ativada
-            (when 
-                (and 
-                    (tem-parede ?baixo-de-c1) 
-                    (or 
-                        (fruta-ativada-azul) 
-                        (fruta-ativada-verde) 
-                        (fruta-ativada-vermelha)
-                    )
-                ) 
-                
-                (increase (total-cost) 8)
-            )
-            
-            ;Dummy move sem fruta ativada
-            (when 
-                (and 
-                    (tem-parede ?baixo-de-c1) 
-                    (not (fruta-ativada-azul))
-                    (not (fruta-ativada-verde))
-                    (not (fruta-ativada-vermelha))
-                ) 
-                
-                (increase (total-cost) 4)
-            )
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?baixo-de-c1)
+            (not (tem-pastilha ?baixo-de-c1))
+            (tem-celula-branco ?baixo-de-c1)
+            (increase (total-cost) 1)
         )
     )
 
+    ; Movimento sem fruta ativada, para fruta azul
+    (:action mover-pacman-baixo-fa
+    
+        :parameters (?c1 ?baixo-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (cima ?baixo-de-c1 ?c1)
+            (tem-fruta-azul ?baixo-de-c1)
+            
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (not (fruta-ativada-vermelha))
+        )
+        
+        :effect (and
+
+            (pacman-moveu-baixo)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+            
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?baixo-de-c1)
+            (not (tem-fruta-azul ?baixo-de-c1))
+            (tem-celula-branco ?baixo-de-c1)
+            (fruta-ativada-azul)
+            (increase (total-cost) 2)
+        )
+    )
+
+    ; Movimento sem fruta ativada, para fruta vermelha
+    (:action mover-pacman-baixo-fva
+    
+        :parameters (?c1 ?baixo-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (cima ?baixo-de-c1 ?c1)
+            (tem-fruta-vermelha ?baixo-de-c1)
+            
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (not (fruta-ativada-vermelha))
+        )
+        
+        :effect (and
+
+            (pacman-moveu-baixo)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?baixo-de-c1)
+            (not (tem-fruta-vermelha ?baixo-de-c1))
+            (tem-celula-branco ?baixo-de-c1)
+            (fruta-ativada-vermelha)
+            (increase (total-cost) 2)
+        )
+    )
+
+    ; Movimento sem fruta ativada, para fruta verde
+    (:action mover-pacman-baixo-fv
+    
+        :parameters (?c1 ?baixo-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (cima ?baixo-de-c1 ?c1)
+            (tem-fruta-verde ?baixo-de-c1)
+            
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (not (fruta-ativada-vermelha))
+        )
+        
+        :effect (and
+
+            (pacman-moveu-baixo)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?baixo-de-c1)
+            (not (tem-fruta-verde ?baixo-de-c1))
+            (tem-celula-branco ?baixo-de-c1)
+            (fruta-ativada-verde)
+            (increase (total-cost) 2)
+        )
+    )
+
+
+    ; Movimento sem fruta ativada, para célula em branco
+    (:action mover-pacman-baixo-cb
+    
+        :parameters (?c1 ?baixo-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (cima ?baixo-de-c1 ?c1)
+            (tem-celula-branco ?baixo-de-c1)
+            
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (not (fruta-ativada-vermelha))
+        )
+        
+        :effect (and
+
+            (pacman-moveu-baixo)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?baixo-de-c1)
+            (increase (total-cost) 2)
+        )
+    )
+
+    ; Movimento sem fruta ativada, para parede (dummy move)
+    (:action mover-pacman-baixo-dm
+    
+        :parameters (?c1 ?baixo-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (cima ?baixo-de-c1 ?c1)
+            (tem-parede ?baixo-de-c1)
+            
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (not (fruta-ativada-vermelha))
+        )
+        
+        :effect (and
+
+            (pacman-moveu-baixo)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+            (increase (total-cost) 4)
+        )
+    )
+
+    ;; Com fruta ativada
+
+    ; Movimento com fruta ativada, para pastilha
+    (:action mover-pacman-direita-fp
+    
+        :parameters (?c1 ?direita-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (direita ?c1 ?direita-de-c1)
+            (tem-pastilha ?direita-de-c1)
+
+            (or 
+                (fruta-ativada-azul) 
+                (fruta-ativada-verde) 
+                (fruta-ativada-vermelha)
+            )
+        )
+        
+        :effect (and
+
+            (pacman-moveu-direita)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+            
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?direita-de-c1)
+            (not (tem-pastilha ?direita-de-c1))
+            (tem-celula-branco ?direita-de-c1)
+            (increase (total-cost) 4)
+        )
+    )
+
+    ; Movimento com fruta ativada, para fruta azul
+    (:action mover-pacman-direita-ffa
+    
+        :parameters (?c1 ?direita-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (direita ?c1 ?direita-de-c1)
+            (tem-fruta-azul ?direita-de-c1)
+            
+            (or 
+                (fruta-ativada-azul) 
+                (fruta-ativada-verde) 
+                (fruta-ativada-vermelha)
+            )
+        )
+        
+        :effect (and
+
+            (pacman-moveu-direita)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+            
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?direita-de-c1)
+            (not (tem-fruta-azul ?direita-de-c1))
+            (tem-celula-branco ?direita-de-c1)
+            (fruta-ativada-azul)
+            (not (fruta-ativada-vermelha))
+            (not (fruta-ativada-verde))
+            (increase (total-cost) 4)
+        )
+    )
+
+    ; Movimento com fruta ativada, para fruta vermelha
+    (:action mover-pacman-direita-ffva
+    
+        :parameters (?c1 ?direita-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (direita ?c1 ?direita-de-c1)
+            (tem-fruta-vermelha ?direita-de-c1)
+            
+            (or 
+                (fruta-ativada-azul) 
+                (fruta-ativada-verde) 
+                (fruta-ativada-vermelha)
+            )
+        )
+        
+        :effect (and
+
+            (pacman-moveu-direita)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?direita-de-c1)
+            (not (tem-fruta-vermelha ?direita-de-c1))
+            (tem-celula-branco ?direita-de-c1)
+            (fruta-ativada-vermelha)
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (increase (total-cost) 4)
+        )
+    )
+
+    ; Movimento com fruta ativada, para fruta verde
+    (:action mover-pacman-direita-ffv
+    
+        :parameters (?c1 ?direita-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (direita ?c1 ?direita-de-c1)
+            (tem-fruta-verde ?direita-de-c1)
+            
+            (or 
+                (fruta-ativada-azul) 
+                (fruta-ativada-verde) 
+                (fruta-ativada-vermelha)
+            )
+        )
+        
+        :effect (and
+
+            (pacman-moveu-direita)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?direita-de-c1)
+            (not (tem-fruta-verde ?direita-de-c1))
+            (tem-celula-branco ?direita-de-c1)
+            (fruta-ativada-verde)
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-vermelha))
+            (increase (total-cost) 4)
+        )
+    )
+
+
+    ; Movimento com fruta ativada, para célula em branco
+    (:action mover-pacman-direita-fcb
+    
+        :parameters (?c1 ?direita-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (direita ?c1 ?direita-de-c1)
+            (tem-celula-branco ?direita-de-c1)
+            
+            (or 
+                (fruta-ativada-azul) 
+                (fruta-ativada-verde) 
+                (fruta-ativada-vermelha)
+            )
+        )
+        
+        :effect (and
+
+            (pacman-moveu-direita)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?direita-de-c1)
+            (increase (total-cost) 4)
+        )
+    )
+
+    ; Movimento com fruta ativada, para parede (dummy move)
+    (:action mover-pacman-direita-fdm
+    
+        :parameters (?c1 ?direita-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (direita ?c1 ?direita-de-c1)
+            (tem-parede ?direita-de-c1)
+            
+            (or 
+                (fruta-ativada-azul) 
+                (fruta-ativada-verde) 
+                (fruta-ativada-vermelha)
+            )
+        )
+        
+        :effect (and
+
+            (pacman-moveu-direita)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+            (increase (total-cost) 8)
+        )
+    )
+
+    ; Movimento com fruta ativada, para pastilha
+    (:action mover-pacman-esquerda-fp
+    
+        :parameters (?c1 ?esquerda-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (direita ?esquerda-de-c1 ?c1)
+            (tem-pastilha ?esquerda-de-c1)
+
+            (or 
+                (fruta-ativada-azul) 
+                (fruta-ativada-verde) 
+                (fruta-ativada-vermelha)
+            )
+        )
+        
+        :effect (and
+
+            (pacman-moveu-esquerda)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+            
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?esquerda-de-c1)
+            (not (tem-pastilha ?esquerda-de-c1))
+            (tem-celula-branco ?esquerda-de-c1)
+            (increase (total-cost) 4)
+        )
+    )
+
+    ; Movimento com fruta ativada, para fruta azul
+    (:action mover-pacman-esquerda-ffa
+    
+        :parameters (?c1 ?esquerda-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (direita ?esquerda-de-c1 ?c1)
+            (tem-fruta-azul ?esquerda-de-c1)
+            
+            (or 
+                (fruta-ativada-azul) 
+                (fruta-ativada-verde) 
+                (fruta-ativada-vermelha)
+            )
+        )
+        
+        :effect (and
+
+            (pacman-moveu-esquerda)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+            
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?esquerda-de-c1)
+            (not (tem-fruta-azul ?esquerda-de-c1))
+            (tem-celula-branco ?esquerda-de-c1)
+            (fruta-ativada-azul)
+            (not (fruta-ativada-vermelha))
+            (not (fruta-ativada-verde))
+            (increase (total-cost) 4)
+        )
+    )
+
+    ; Movimento com fruta ativada, para fruta vermelha
+    (:action mover-pacman-esquerda-ffva
+    
+        :parameters (?c1 ?esquerda-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (direita ?esquerda-de-c1 ?c1)
+            (tem-fruta-vermelha ?esquerda-de-c1)
+            
+            (or 
+                (fruta-ativada-azul) 
+                (fruta-ativada-verde) 
+                (fruta-ativada-vermelha)
+            )
+        )
+        
+        :effect (and
+
+            (pacman-moveu-esquerda)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?esquerda-de-c1)
+            (not (tem-fruta-vermelha ?esquerda-de-c1))
+            (tem-celula-branco ?esquerda-de-c1)
+            (fruta-ativada-vermelha)
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (increase (total-cost) 4)
+        )
+    )
+
+    ; Movimento com fruta ativada, para fruta verde
+    (:action mover-pacman-esquerda-ffv
+    
+        :parameters (?c1 ?esquerda-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (direita ?esquerda-de-c1 ?c1)
+            (tem-fruta-verde ?esquerda-de-c1)
+            
+            (or 
+                (fruta-ativada-azul) 
+                (fruta-ativada-verde) 
+                (fruta-ativada-vermelha)
+            )
+        )
+        
+        :effect (and
+
+            (pacman-moveu-esquerda)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?esquerda-de-c1)
+            (not (tem-fruta-verde ?esquerda-de-c1))
+            (tem-celula-branco ?esquerda-de-c1)
+            (fruta-ativada-verde)
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-vermelha))
+            (increase (total-cost) 4)
+        )
+    )
+
+
+    ; Movimento com fruta ativada, para célula em branco
+    (:action mover-pacman-esquerda-fcb
+    
+        :parameters (?c1 ?esquerda-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (direita ?esquerda-de-c1 ?c1)
+            (tem-celula-branco ?esquerda-de-c1)
+            
+            (or 
+                (fruta-ativada-azul) 
+                (fruta-ativada-verde) 
+                (fruta-ativada-vermelha)
+            )
+        )
+        
+        :effect (and
+
+            (pacman-moveu-esquerda)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?esquerda-de-c1)
+            (increase (total-cost) 4)
+        )
+    )
+
+    ; Movimento com fruta ativada, para parede (dummy move)
+    (:action mover-pacman-esquerda-fdm
+    
+        :parameters (?c1 ?esquerda-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (direita ?esquerda-de-c1 ?c1)
+            (tem-parede ?esquerda-de-c1)
+            
+            (or 
+                (fruta-ativada-azul) 
+                (fruta-ativada-verde) 
+                (fruta-ativada-vermelha)
+            )
+        )
+        
+        :effect (and
+
+            (pacman-moveu-esquerda)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+            (increase (total-cost) 8)
+        )
+    )
+
+    ; Movimento com fruta ativada, para pastilha
+    (:action mover-pacman-cima-fp
+    
+        :parameters (?c1 ?cima-de-c1 - celula)
+
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (cima ?c1 ?cima-de-c1)
+            (tem-pastilha ?cima-de-c1)
+
+            (or 
+                (fruta-ativada-azul) 
+                (fruta-ativada-verde) 
+                (fruta-ativada-vermelha)
+            )
+        )
+        
+        :effect (and
+
+            (pacman-moveu-cima)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+            
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?cima-de-c1)
+            (not (tem-pastilha ?cima-de-c1))
+            (tem-celula-branco ?cima-de-c1)
+            (increase (total-cost) 4)
+        )
+    )
+
+    ; Movimento com fruta ativada, para fruta azul
+    (:action mover-pacman-cima-ffa
+    
+        :parameters (?c1 ?cima-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (cima ?c1 ?cima-de-c1)
+            (tem-fruta-azul ?cima-de-c1)
+            
+            (or 
+                (fruta-ativada-azul) 
+                (fruta-ativada-verde) 
+                (fruta-ativada-vermelha)
+            )
+        )
+        
+        :effect (and
+
+            (pacman-moveu-cima)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+            
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?cima-de-c1)
+            (not (tem-fruta-azul ?cima-de-c1))
+            (tem-celula-branco ?cima-de-c1)
+            (fruta-ativada-azul)
+            (not (fruta-ativada-vermelha))
+            (not (fruta-ativada-verde))
+            (increase (total-cost) 4)
+        )
+    )
+
+    ; Movimento com fruta ativada, para fruta vermelha
+    (:action mover-pacman-cima-ffva
+    
+        :parameters (?c1 ?cima-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (cima ?c1 ?cima-de-c1)
+            (tem-fruta-vermelha ?cima-de-c1)
+            
+            (or 
+                (fruta-ativada-azul) 
+                (fruta-ativada-verde) 
+                (fruta-ativada-vermelha)
+            )
+        )
+        
+        :effect (and
+
+            (pacman-moveu-cima)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?cima-de-c1)
+            (not (tem-fruta-vermelha ?cima-de-c1))
+            (tem-celula-branco ?cima-de-c1)
+            (fruta-ativada-vermelha)
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (increase (total-cost) 4)
+        )
+    )
+
+    ; Movimento com fruta ativada, para fruta verde
+    (:action mover-pacman-cima-ffv
+    
+        :parameters (?c1 ?cima-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (cima ?c1 ?cima-de-c1)
+            (tem-fruta-verde ?cima-de-c1)
+            
+            (or 
+                (fruta-ativada-azul) 
+                (fruta-ativada-verde) 
+                (fruta-ativada-vermelha)
+            )
+        )
+        
+        :effect (and
+
+            (pacman-moveu-cima)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?cima-de-c1)
+            (not (tem-fruta-verde ?cima-de-c1))
+            (tem-celula-branco ?cima-de-c1)
+            (fruta-ativada-verde)
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-vermelha))
+            (increase (total-cost) 4)
+        )
+    )
+
+
+    ; Movimento com fruta ativada, para célula em branco
+    (:action mover-pacman-cima-fcb
+    
+        :parameters (?c1 ?cima-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (cima ?c1 ?cima-de-c1)
+            (tem-celula-branco ?cima-de-c1)
+            
+            (or 
+                (fruta-ativada-azul) 
+                (fruta-ativada-verde) 
+                (fruta-ativada-vermelha)
+            )
+        )
+        
+        :effect (and
+
+            (pacman-moveu-cima)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?cima-de-c1)
+            (increase (total-cost) 4)
+        )
+    )
+
+    ; Movimento com fruta ativada, para parede (dummy move)
+    (:action mover-pacman-cima-fdm
+    
+        :parameters (?c1 ?cima-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (cima ?c1 ?cima-de-c1)
+            (tem-parede ?cima-de-c1)
+            
+            (or 
+                (fruta-ativada-azul) 
+                (fruta-ativada-verde) 
+                (fruta-ativada-vermelha)
+            )
+        )
+        
+        :effect (and
+
+            (pacman-moveu-cima)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+            (increase (total-cost) 8)
+        )
+    )
+
+    ; Movimento com fruta ativada, para pastilha
+    (:action mover-pacman-baixo-fp
+    
+        :parameters (?c1 ?baixo-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (cima ?baixo-de-c1 ?c1)
+            (tem-pastilha ?baixo-de-c1)
+
+            (or 
+                (fruta-ativada-azul) 
+                (fruta-ativada-verde) 
+                (fruta-ativada-vermelha)
+            )
+        )
+        
+        :effect (and
+
+            (pacman-moveu-baixo)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+            
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?baixo-de-c1)
+            (not (tem-pastilha ?baixo-de-c1))
+            (tem-celula-branco ?baixo-de-c1)
+            (increase (total-cost) 4)
+        )
+    )
+
+    ; Movimento com fruta ativada, para fruta azul
+    (:action mover-pacman-baixo-ffa
+    
+        :parameters (?c1 ?baixo-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (cima ?baixo-de-c1 ?c1)
+            (tem-fruta-azul ?baixo-de-c1)
+            
+            (or 
+                (fruta-ativada-azul) 
+                (fruta-ativada-verde) 
+                (fruta-ativada-vermelha)
+            )
+        )
+        
+        :effect (and
+
+            (pacman-moveu-baixo)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+            
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?baixo-de-c1)
+            (not (tem-fruta-azul ?baixo-de-c1))
+            (tem-celula-branco ?baixo-de-c1)
+            (fruta-ativada-azul)
+            (not (fruta-ativada-vermelha))
+            (not (fruta-ativada-verde))
+            (increase (total-cost) 4)
+        )
+    )
+
+    ; Movimento com fruta ativada, para fruta vermelha
+    (:action mover-pacman-baixo-ffva
+    
+        :parameters (?c1 ?baixo-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (cima ?baixo-de-c1 ?c1)
+            (tem-fruta-vermelha ?baixo-de-c1)
+            
+            (or 
+                (fruta-ativada-azul) 
+                (fruta-ativada-verde) 
+                (fruta-ativada-vermelha)
+            )
+        )
+        
+        :effect (and
+
+            (pacman-moveu-baixo)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?baixo-de-c1)
+            (not (tem-fruta-vermelha ?baixo-de-c1))
+            (tem-celula-branco ?baixo-de-c1)
+            (fruta-ativada-vermelha)
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (increase (total-cost) 4)
+        )
+    )
+
+    ; Movimento com fruta ativada, para fruta verde
+    (:action mover-pacman-baixo-ffv
+    
+        :parameters (?c1 ?baixo-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (cima ?baixo-de-c1 ?c1)
+            (tem-fruta-verde ?baixo-de-c1)
+            
+            (or 
+                (fruta-ativada-azul) 
+                (fruta-ativada-verde) 
+                (fruta-ativada-vermelha)
+            )
+        )
+        
+        :effect (and
+
+            (pacman-moveu-baixo)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?baixo-de-c1)
+            (not (tem-fruta-verde ?baixo-de-c1))
+            (tem-celula-branco ?baixo-de-c1)
+            (fruta-ativada-verde)
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-vermelha))
+            (increase (total-cost) 4)
+        )
+    )
+
+
+    ; Movimento com fruta ativada, para célula em branco
+    (:action mover-pacman-baixo-fcb
+    
+        :parameters (?c1 ?baixo-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (cima ?baixo-de-c1 ?c1)
+            (tem-celula-branco ?baixo-de-c1)
+            
+            (or 
+                (fruta-ativada-azul) 
+                (fruta-ativada-verde) 
+                (fruta-ativada-vermelha)
+            )
+        )
+        
+        :effect (and
+
+            (pacman-moveu-baixo)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?baixo-de-c1)
+            (increase (total-cost) 4)
+        )
+    )
+
+    ; Movimento com fruta ativada, para parede (dummy move)
+    (:action mover-pacman-baixo-fdm
+    
+        :parameters (?c1 ?baixo-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado pacman)
+            (criatura-em pacman ?c1)
+            (cima ?baixo-de-c1 ?c1)
+            (tem-parede ?baixo-de-c1)
+            
+            (or 
+                (fruta-ativada-azul) 
+                (fruta-ativada-verde) 
+                (fruta-ativada-vermelha)
+            )
+        )
+        
+        :effect (and
+
+            (pacman-moveu-baixo)
+            (turno-ativado fantasma-azul)
+            (not (turno-ativado pacman))
+            (increase (total-cost) 8)
+        )
+    )
+
+
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;Possibilidades de movimento dos fantasmas:
+
+    ; .Para a parede
+    ; .Para célula em branco
+    ; .Para portal
 
     (:action mover-fantasma-azul-direita
     
@@ -358,18 +1570,15 @@
             (criatura-em fantasma-azul ?c1)
             (direita ?c1 ?direita-de-c1)
             (pacman-moveu-esquerda)
+            (not (tem-parede ?direita-de-c1))
         )
         
         :effect (and
             (not (turno-ativado fantasma-azul))
             (turno-ativado fantasma-verde) ; Passa o turno pro verde
+            (not (criatura-em fantasma-azul ?c1))
+            (criatura-em fantasma-azul ?direita-de-c1)
 
-            (when (not (tem-parede ?direita-de-c1)) 
-                (and 
-                    (not (criatura-em fantasma-azul ?c1))
-                    (criatura-em fantasma-azul ?direita-de-c1)
-                )
-            )
         )
     )
     
@@ -382,18 +1591,14 @@
             (criatura-em fantasma-azul ?c1)
             (direita ?esquerda-de-c1 ?c1)
             (pacman-moveu-direita)
+            (not (tem-parede ?esquerda-de-c1))
         )
         
         :effect (and
             (not (turno-ativado fantasma-azul))
             (turno-ativado fantasma-verde) ; Passa o turno pro verde
-
-            (when (not (tem-parede ?esquerda-de-c1)) 
-                (and 
-                    (not (criatura-em fantasma-azul ?c1))
-                    (criatura-em fantasma-azul ?esquerda-de-c1)
-                )
-            )
+            (not (criatura-em fantasma-azul ?c1))
+            (criatura-em fantasma-azul ?esquerda-de-c1)
 
         )
     )
@@ -407,18 +1612,14 @@
             (criatura-em fantasma-azul ?c1)
             (cima ?c1 ?cima-de-c1)
             (pacman-moveu-baixo)
+            (not (tem-parede ?cima-de-c1))
         )
         
         :effect (and
             (not (turno-ativado fantasma-azul))
             (turno-ativado fantasma-verde) ; Passa o turno pro verde
-
-            (when (not (tem-parede ?cima-de-c1)) 
-                (and 
-                    (not (criatura-em fantasma-azul ?c1))
-                    (criatura-em fantasma-azul ?cima-de-c1)
-                )
-            )
+            (not (criatura-em fantasma-azul ?c1))
+            (criatura-em fantasma-azul ?cima-de-c1)
         )
     )
     
@@ -431,18 +1632,87 @@
             (criatura-em fantasma-azul ?c1)
             (cima ?baixo-de-c1 ?c1)
             (pacman-moveu-cima)
+            (not (tem-parede ?baixo-de-c1))
         )
         
         :effect (and
             (not (turno-ativado fantasma-azul))
             (turno-ativado fantasma-verde) ; Passa o turno pro verde
+            (not (criatura-em fantasma-azul ?c1))
+            (criatura-em fantasma-azul ?baixo-de-c1)
+        )
+    )
 
-            (when (not (tem-parede ?baixo-de-c1)) 
-                (and 
-                    (not (criatura-em fantasma-azul ?c1))
-                    (criatura-em fantasma-azul ?baixo-de-c1)
-                )
-            )
+
+    (:action mover-fantasma-azul-direita-dm
+    
+        :parameters (?c1 ?direita-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado fantasma-azul)
+            (criatura-em fantasma-azul ?c1)
+            (direita ?c1 ?direita-de-c1)
+            (pacman-moveu-esquerda)
+            (tem-parede ?direita-de-c1)
+        )
+        
+        :effect (and
+            (not (turno-ativado fantasma-azul))
+            (turno-ativado fantasma-verde) ; Passa o turno pro verde
+        )
+    )
+    
+    (:action mover-fantasma-azul-esquerda-dm
+    
+        :parameters (?c1 ?esquerda-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado fantasma-azul)
+            (criatura-em fantasma-azul ?c1)
+            (direita ?esquerda-de-c1 ?c1)
+            (pacman-moveu-direita)
+            (tem-parede ?esquerda-de-c1)
+        )
+        
+        :effect (and
+            (not (turno-ativado fantasma-azul))
+            (turno-ativado fantasma-verde) ; Passa o turno pro verde
+        )
+    )
+    
+    (:action mover-fantasma-azul-cima-dm
+    
+        :parameters (?c1 ?cima-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado fantasma-azul)
+            (criatura-em fantasma-azul ?c1)
+            (cima ?c1 ?cima-de-c1)
+            (pacman-moveu-baixo)
+            (tem-parede ?cima-de-c1)
+        )
+        
+        :effect (and
+            (not (turno-ativado fantasma-azul))
+            (turno-ativado fantasma-verde) ; Passa o turno pro verde
+        )
+    )
+    
+    (:action mover-fantasma-azul-baixo-dm
+    
+        :parameters (?c1 ?baixo-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado fantasma-azul)
+            (criatura-em fantasma-azul ?c1)
+            (cima ?baixo-de-c1 ?c1)
+            (pacman-moveu-cima)
+            (tem-parede ?baixo-de-c1)
+        )
+        
+        :effect (and
+            (not (turno-ativado fantasma-azul))
+            (turno-ativado fantasma-verde) ; Passa o turno pro verde
         )
     )
 
@@ -457,18 +1727,14 @@
             (criatura-em fantasma-verde ?c1)
             (direita ?c1 ?direita-de-c1)
             (pacman-moveu-direita)
+            (not (tem-parede ?direita-de-c1))
         )
         
         :effect (and
             (not (turno-ativado fantasma-verde))
             (turno-ativado fantasma-vermelho) ; Passa o turno pro vermelho
-
-            (when (not (tem-parede ?direita-de-c1)) 
-                (and 
-                    (not (criatura-em fantasma-verde ?c1))
-                    (criatura-em fantasma-verde ?direita-de-c1)
-                )
-            )
+            (not (criatura-em fantasma-verde ?c1))
+            (criatura-em fantasma-verde ?direita-de-c1)
         )
     )
     
@@ -481,18 +1747,14 @@
             (criatura-em fantasma-verde ?c1)
             (direita ?esquerda-de-c1 ?c1)
             (pacman-moveu-esquerda)
+            (not (tem-parede ?esquerda-de-c1))
         )
         
         :effect (and
             (not (turno-ativado fantasma-verde))
             (turno-ativado fantasma-vermelho) ; Passa o turno pro vermelho
-
-            (when (not (tem-parede ?esquerda-de-c1)) 
-                (and 
-                    (not (criatura-em fantasma-verde ?c1))
-                    (criatura-em fantasma-verde ?esquerda-de-c1)
-                )
-            )
+            (not (criatura-em fantasma-verde ?c1))
+            (criatura-em fantasma-verde ?esquerda-de-c1)
         )
     )
     
@@ -505,18 +1767,14 @@
             (criatura-em fantasma-verde ?c1)
             (cima ?c1 ?cima-de-c1)
             (pacman-moveu-cima)
+            (not (tem-parede ?cima-de-c1))
         )
         
         :effect (and
             (not (turno-ativado fantasma-verde))
             (turno-ativado fantasma-vermelho) ; Passa o turno pro vermelho
-
-            (when (not (tem-parede ?cima-de-c1)) 
-                (and 
-                    (not (criatura-em fantasma-verde ?c1))
-                    (criatura-em fantasma-verde ?cima-de-c1)
-                )
-            )
+            (not (criatura-em fantasma-verde ?c1))
+            (criatura-em fantasma-verde ?cima-de-c1)
         )
     )
     
@@ -529,18 +1787,86 @@
             (criatura-em fantasma-verde ?c1)
             (cima ?baixo-de-c1 ?c1)
             (pacman-moveu-baixo)
+            (not (tem-parede ?baixo-de-c1))
         )
         
         :effect (and
             (not (turno-ativado fantasma-verde))
             (turno-ativado fantasma-vermelho) ; Passa o turno pro vermelho
+            (not (criatura-em fantasma-verde ?c1))
+            (criatura-em fantasma-verde ?baixo-de-c1)
+        )
+    )
 
-            (when (not (tem-parede ?baixo-de-c1)) 
-                (and 
-                    (not (criatura-em fantasma-verde ?c1))
-                    (criatura-em fantasma-verde ?baixo-de-c1)
-                )
-            )
+    (:action mover-fantasma-verde-direita-dm
+    
+        :parameters (?c1 ?direita-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado fantasma-verde)
+            (criatura-em fantasma-verde ?c1)
+            (direita ?c1 ?direita-de-c1)
+            (pacman-moveu-direita)
+            (tem-parede ?direita-de-c1)
+        )
+        
+        :effect (and
+            (not (turno-ativado fantasma-verde))
+            (turno-ativado fantasma-vermelho) ; Passa o turno pro vermelho
+        )
+    )
+    
+    (:action mover-fantasma-verde-esquerda-dm
+    
+        :parameters (?c1 ?esquerda-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado fantasma-verde)
+            (criatura-em fantasma-verde ?c1)
+            (direita ?esquerda-de-c1 ?c1)
+            (pacman-moveu-esquerda)
+            (tem-parede ?esquerda-de-c1)
+        )
+        
+        :effect (and
+            (not (turno-ativado fantasma-verde))
+            (turno-ativado fantasma-vermelho) ; Passa o turno pro vermelho
+        )
+    )
+    
+    (:action mover-fantasma-verde-cima-dm
+    
+        :parameters (?c1 ?cima-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado fantasma-verde)
+            (criatura-em fantasma-verde ?c1)
+            (cima ?c1 ?cima-de-c1)
+            (pacman-moveu-cima)
+            (tem-parede ?cima-de-c1)
+        )
+        
+        :effect (and
+            (not (turno-ativado fantasma-verde))
+            (turno-ativado fantasma-vermelho) ; Passa o turno pro vermelho
+        )
+    )
+    
+    (:action mover-fantasma-verde-baixo-dm
+    
+        :parameters (?c1 ?baixo-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado fantasma-verde)
+            (criatura-em fantasma-verde ?c1)
+            (cima ?baixo-de-c1 ?c1)
+            (pacman-moveu-baixo)
+            (tem-parede ?baixo-de-c1)
+        )
+        
+        :effect (and
+            (not (turno-ativado fantasma-verde))
+            (turno-ativado fantasma-vermelho) ; Passa o turno pro vermelho
         )
     )
 )
