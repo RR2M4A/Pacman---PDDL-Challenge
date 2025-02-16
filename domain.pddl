@@ -2,20 +2,25 @@
     (domain pacman-domain)
     (:requirements :strips :typing :negative-preconditions :numeric-fluents :action-costs)
     (:types
-        celula
+        celula criatura
     )
     (:predicates
         (criatura-em ?c1 - criatura ?c2 - celula)
-        (turno-ativado ?c - criatura)
 
-        (direita ?c1 ?c2)  ;Indentifica se uma célula está à direita de outra
-        (cima ?c1 ?c2)     ;Indentifica se uma célula está acima de outra
+        (direita ?c1 ?c2 - celula)  ;Indentifica se uma célula está à direita de outra
+        (cima ?c1 ?c2 - celula)     ;Indentifica se uma célula está acima de outra
 
         ; Identifica pra qual direção o pacman se moveu
         (pacman-moveu-direita)
         (pacman-moveu-cima)
         (pacman-moveu-esquerda)
         (pacman-moveu-baixo)
+
+        ; Turnos das criaturas
+        (turno-ativado-fantasma-vermelho)
+        (turno-ativado-fantasma-verde)
+        (turno-ativado-fantasma-azul)
+        (turno-ativado-pacman)
         
         ; Identifica o que tem em cima da célula
         (tem-pastilha ?c - celula)
@@ -23,12 +28,22 @@
         (tem-fruta-verde ?c - celula)
         (tem-fruta-vermelha ?c - celula)
         (tem-parede ?c - celula)
-        (tem-celula-branco ?c celula)
+        (tem-celula-branco ?c - celula)
         
         ; Fruta ativada
         (fruta-ativada-azul)
         (fruta-ativada-verde)
         (fruta-ativada-vermelha)
+
+        ; Variáveis do vermelho
+        (vermelho-cima)
+        (contador-troca-cima)
+        (vermelho-baixo)
+        (contador-troca-baixo)
+        (vermelho-direita)
+        (contador-troca-direita)
+        (vermelho-esquerda)
+        (contador-troca-esquerda)
     )
     
     (:functions 
@@ -69,7 +84,7 @@
         :parameters (?c1 ?direita-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (direita ?c1 ?direita-de-c1)
             (tem-pastilha ?direita-de-c1)
@@ -82,8 +97,8 @@
         :effect (and
 
             (pacman-moveu-direita)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
             
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?direita-de-c1)
@@ -99,7 +114,7 @@
         :parameters (?c1 ?direita-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (direita ?c1 ?direita-de-c1)
             (tem-fruta-azul ?direita-de-c1)
@@ -112,8 +127,8 @@
         :effect (and
 
             (pacman-moveu-direita)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
             
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?direita-de-c1)
@@ -130,7 +145,7 @@
         :parameters (?c1 ?direita-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (direita ?c1 ?direita-de-c1)
             (tem-fruta-vermelha ?direita-de-c1)
@@ -143,8 +158,8 @@
         :effect (and
 
             (pacman-moveu-direita)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
 
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?direita-de-c1)
@@ -161,7 +176,7 @@
         :parameters (?c1 ?direita-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (direita ?c1 ?direita-de-c1)
             (tem-fruta-verde ?direita-de-c1)
@@ -174,8 +189,8 @@
         :effect (and
 
             (pacman-moveu-direita)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
 
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?direita-de-c1)
@@ -193,7 +208,7 @@
         :parameters (?c1 ?direita-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (direita ?c1 ?direita-de-c1)
             (tem-celula-branco ?direita-de-c1)
@@ -206,8 +221,8 @@
         :effect (and
 
             (pacman-moveu-direita)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
 
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?direita-de-c1)
@@ -221,7 +236,7 @@
         :parameters (?c1 ?direita-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (direita ?c1 ?direita-de-c1)
             (tem-parede ?direita-de-c1)
@@ -234,8 +249,8 @@
         :effect (and
 
             (pacman-moveu-direita)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
             (increase (total-cost) 4)
         )
     )
@@ -246,7 +261,7 @@
         :parameters (?c1 ?esquerda-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (direita ?esquerda-de-c1 ?c1)
             (tem-pastilha ?esquerda-de-c1)
@@ -259,8 +274,8 @@
         :effect (and
 
             (pacman-moveu-esquerda)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
             
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?esquerda-de-c1)
@@ -276,7 +291,7 @@
         :parameters (?c1 ?esquerda-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (direita ?esquerda-de-c1 ?c1)
             (tem-fruta-azul ?esquerda-de-c1)
@@ -289,8 +304,8 @@
         :effect (and
 
             (pacman-moveu-esquerda)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
             
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?esquerda-de-c1)
@@ -307,7 +322,7 @@
         :parameters (?c1 ?esquerda-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (direita ?esquerda-de-c1 ?c1)
             (tem-fruta-vermelha ?esquerda-de-c1)
@@ -320,8 +335,8 @@
         :effect (and
 
             (pacman-moveu-esquerda)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
 
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?esquerda-de-c1)
@@ -338,7 +353,7 @@
         :parameters (?c1 ?esquerda-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (direita ?esquerda-de-c1 ?c1)
             (tem-fruta-verde ?esquerda-de-c1)
@@ -351,8 +366,8 @@
         :effect (and
 
             (pacman-moveu-esquerda)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
 
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?esquerda-de-c1)
@@ -370,7 +385,7 @@
         :parameters (?c1 ?esquerda-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (direita ?esquerda-de-c1 ?c1)
             (tem-celula-branco ?esquerda-de-c1)
@@ -383,8 +398,8 @@
         :effect (and
 
             (pacman-moveu-esquerda)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
 
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?esquerda-de-c1)
@@ -398,7 +413,7 @@
         :parameters (?c1 ?esquerda-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (direita ?esquerda-de-c1 ?c1)
             (tem-parede ?esquerda-de-c1)
@@ -411,8 +426,8 @@
         :effect (and
 
             (pacman-moveu-esquerda)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
             (increase (total-cost) 4)
         )
     )
@@ -423,7 +438,7 @@
         :parameters (?c1 ?cima-de-c1 - celula)
 
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (cima ?c1 ?cima-de-c1)
             (tem-pastilha ?cima-de-c1)
@@ -436,8 +451,8 @@
         :effect (and
 
             (pacman-moveu-cima)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
             
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?cima-de-c1)
@@ -453,7 +468,7 @@
         :parameters (?c1 ?cima-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (cima ?c1 ?cima-de-c1)
             (tem-fruta-azul ?cima-de-c1)
@@ -466,8 +481,8 @@
         :effect (and
 
             (pacman-moveu-cima)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
             
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?cima-de-c1)
@@ -484,7 +499,7 @@
         :parameters (?c1 ?cima-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (cima ?c1 ?cima-de-c1)
             (tem-fruta-vermelha ?cima-de-c1)
@@ -497,8 +512,8 @@
         :effect (and
 
             (pacman-moveu-cima)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
 
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?cima-de-c1)
@@ -515,7 +530,7 @@
         :parameters (?c1 ?cima-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (cima ?c1 ?cima-de-c1)
             (tem-fruta-verde ?cima-de-c1)
@@ -528,8 +543,8 @@
         :effect (and
 
             (pacman-moveu-cima)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
 
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?cima-de-c1)
@@ -547,7 +562,7 @@
         :parameters (?c1 ?cima-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (cima ?c1 ?cima-de-c1)
             (tem-celula-branco ?cima-de-c1)
@@ -560,8 +575,8 @@
         :effect (and
 
             (pacman-moveu-cima)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
 
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?cima-de-c1)
@@ -575,7 +590,7 @@
         :parameters (?c1 ?cima-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (cima ?c1 ?cima-de-c1)
             (tem-parede ?cima-de-c1)
@@ -588,8 +603,8 @@
         :effect (and
 
             (pacman-moveu-cima)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
             (increase (total-cost) 4)
         )
     )
@@ -600,7 +615,7 @@
         :parameters (?c1 ?baixo-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (cima ?baixo-de-c1 ?c1)
             (tem-pastilha ?baixo-de-c1)
@@ -613,8 +628,8 @@
         :effect (and
 
             (pacman-moveu-baixo)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
             
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?baixo-de-c1)
@@ -630,7 +645,7 @@
         :parameters (?c1 ?baixo-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (cima ?baixo-de-c1 ?c1)
             (tem-fruta-azul ?baixo-de-c1)
@@ -643,8 +658,8 @@
         :effect (and
 
             (pacman-moveu-baixo)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
             
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?baixo-de-c1)
@@ -661,7 +676,7 @@
         :parameters (?c1 ?baixo-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (cima ?baixo-de-c1 ?c1)
             (tem-fruta-vermelha ?baixo-de-c1)
@@ -674,8 +689,8 @@
         :effect (and
 
             (pacman-moveu-baixo)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
 
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?baixo-de-c1)
@@ -692,7 +707,7 @@
         :parameters (?c1 ?baixo-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (cima ?baixo-de-c1 ?c1)
             (tem-fruta-verde ?baixo-de-c1)
@@ -705,8 +720,8 @@
         :effect (and
 
             (pacman-moveu-baixo)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
 
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?baixo-de-c1)
@@ -724,7 +739,7 @@
         :parameters (?c1 ?baixo-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (cima ?baixo-de-c1 ?c1)
             (tem-celula-branco ?baixo-de-c1)
@@ -737,8 +752,8 @@
         :effect (and
 
             (pacman-moveu-baixo)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
 
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?baixo-de-c1)
@@ -752,7 +767,7 @@
         :parameters (?c1 ?baixo-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (cima ?baixo-de-c1 ?c1)
             (tem-parede ?baixo-de-c1)
@@ -765,8 +780,8 @@
         :effect (and
 
             (pacman-moveu-baixo)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
             (increase (total-cost) 4)
         )
     )
@@ -779,7 +794,7 @@
         :parameters (?c1 ?direita-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (direita ?c1 ?direita-de-c1)
             (tem-pastilha ?direita-de-c1)
@@ -794,8 +809,8 @@
         :effect (and
 
             (pacman-moveu-direita)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
             
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?direita-de-c1)
@@ -811,7 +826,7 @@
         :parameters (?c1 ?direita-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (direita ?c1 ?direita-de-c1)
             (tem-fruta-azul ?direita-de-c1)
@@ -826,8 +841,8 @@
         :effect (and
 
             (pacman-moveu-direita)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
             
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?direita-de-c1)
@@ -846,7 +861,7 @@
         :parameters (?c1 ?direita-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (direita ?c1 ?direita-de-c1)
             (tem-fruta-vermelha ?direita-de-c1)
@@ -861,8 +876,8 @@
         :effect (and
 
             (pacman-moveu-direita)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
 
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?direita-de-c1)
@@ -881,7 +896,7 @@
         :parameters (?c1 ?direita-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (direita ?c1 ?direita-de-c1)
             (tem-fruta-verde ?direita-de-c1)
@@ -896,8 +911,8 @@
         :effect (and
 
             (pacman-moveu-direita)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
 
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?direita-de-c1)
@@ -917,7 +932,7 @@
         :parameters (?c1 ?direita-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (direita ?c1 ?direita-de-c1)
             (tem-celula-branco ?direita-de-c1)
@@ -932,8 +947,8 @@
         :effect (and
 
             (pacman-moveu-direita)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
 
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?direita-de-c1)
@@ -947,7 +962,7 @@
         :parameters (?c1 ?direita-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (direita ?c1 ?direita-de-c1)
             (tem-parede ?direita-de-c1)
@@ -962,8 +977,8 @@
         :effect (and
 
             (pacman-moveu-direita)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
             (increase (total-cost) 8)
         )
     )
@@ -974,7 +989,7 @@
         :parameters (?c1 ?esquerda-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (direita ?esquerda-de-c1 ?c1)
             (tem-pastilha ?esquerda-de-c1)
@@ -989,8 +1004,8 @@
         :effect (and
 
             (pacman-moveu-esquerda)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
             
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?esquerda-de-c1)
@@ -1006,7 +1021,7 @@
         :parameters (?c1 ?esquerda-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (direita ?esquerda-de-c1 ?c1)
             (tem-fruta-azul ?esquerda-de-c1)
@@ -1021,8 +1036,8 @@
         :effect (and
 
             (pacman-moveu-esquerda)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
             
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?esquerda-de-c1)
@@ -1041,7 +1056,7 @@
         :parameters (?c1 ?esquerda-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (direita ?esquerda-de-c1 ?c1)
             (tem-fruta-vermelha ?esquerda-de-c1)
@@ -1056,8 +1071,8 @@
         :effect (and
 
             (pacman-moveu-esquerda)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
 
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?esquerda-de-c1)
@@ -1076,7 +1091,7 @@
         :parameters (?c1 ?esquerda-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (direita ?esquerda-de-c1 ?c1)
             (tem-fruta-verde ?esquerda-de-c1)
@@ -1091,8 +1106,8 @@
         :effect (and
 
             (pacman-moveu-esquerda)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
 
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?esquerda-de-c1)
@@ -1112,7 +1127,7 @@
         :parameters (?c1 ?esquerda-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (direita ?esquerda-de-c1 ?c1)
             (tem-celula-branco ?esquerda-de-c1)
@@ -1127,8 +1142,8 @@
         :effect (and
 
             (pacman-moveu-esquerda)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
 
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?esquerda-de-c1)
@@ -1142,7 +1157,7 @@
         :parameters (?c1 ?esquerda-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (direita ?esquerda-de-c1 ?c1)
             (tem-parede ?esquerda-de-c1)
@@ -1157,8 +1172,8 @@
         :effect (and
 
             (pacman-moveu-esquerda)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
             (increase (total-cost) 8)
         )
     )
@@ -1169,7 +1184,7 @@
         :parameters (?c1 ?cima-de-c1 - celula)
 
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (cima ?c1 ?cima-de-c1)
             (tem-pastilha ?cima-de-c1)
@@ -1184,8 +1199,8 @@
         :effect (and
 
             (pacman-moveu-cima)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
             
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?cima-de-c1)
@@ -1201,7 +1216,7 @@
         :parameters (?c1 ?cima-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (cima ?c1 ?cima-de-c1)
             (tem-fruta-azul ?cima-de-c1)
@@ -1216,8 +1231,8 @@
         :effect (and
 
             (pacman-moveu-cima)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
             
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?cima-de-c1)
@@ -1236,7 +1251,7 @@
         :parameters (?c1 ?cima-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (cima ?c1 ?cima-de-c1)
             (tem-fruta-vermelha ?cima-de-c1)
@@ -1251,8 +1266,8 @@
         :effect (and
 
             (pacman-moveu-cima)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
 
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?cima-de-c1)
@@ -1271,7 +1286,7 @@
         :parameters (?c1 ?cima-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (cima ?c1 ?cima-de-c1)
             (tem-fruta-verde ?cima-de-c1)
@@ -1286,8 +1301,8 @@
         :effect (and
 
             (pacman-moveu-cima)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
 
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?cima-de-c1)
@@ -1307,7 +1322,7 @@
         :parameters (?c1 ?cima-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (cima ?c1 ?cima-de-c1)
             (tem-celula-branco ?cima-de-c1)
@@ -1322,8 +1337,8 @@
         :effect (and
 
             (pacman-moveu-cima)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
 
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?cima-de-c1)
@@ -1337,7 +1352,7 @@
         :parameters (?c1 ?cima-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (cima ?c1 ?cima-de-c1)
             (tem-parede ?cima-de-c1)
@@ -1352,8 +1367,8 @@
         :effect (and
 
             (pacman-moveu-cima)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
             (increase (total-cost) 8)
         )
     )
@@ -1364,7 +1379,7 @@
         :parameters (?c1 ?baixo-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (cima ?baixo-de-c1 ?c1)
             (tem-pastilha ?baixo-de-c1)
@@ -1379,8 +1394,8 @@
         :effect (and
 
             (pacman-moveu-baixo)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
             
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?baixo-de-c1)
@@ -1396,7 +1411,7 @@
         :parameters (?c1 ?baixo-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (cima ?baixo-de-c1 ?c1)
             (tem-fruta-azul ?baixo-de-c1)
@@ -1411,8 +1426,8 @@
         :effect (and
 
             (pacman-moveu-baixo)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
             
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?baixo-de-c1)
@@ -1431,7 +1446,7 @@
         :parameters (?c1 ?baixo-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (cima ?baixo-de-c1 ?c1)
             (tem-fruta-vermelha ?baixo-de-c1)
@@ -1446,8 +1461,8 @@
         :effect (and
 
             (pacman-moveu-baixo)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
 
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?baixo-de-c1)
@@ -1466,7 +1481,7 @@
         :parameters (?c1 ?baixo-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (cima ?baixo-de-c1 ?c1)
             (tem-fruta-verde ?baixo-de-c1)
@@ -1481,8 +1496,8 @@
         :effect (and
 
             (pacman-moveu-baixo)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
 
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?baixo-de-c1)
@@ -1502,7 +1517,7 @@
         :parameters (?c1 ?baixo-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (cima ?baixo-de-c1 ?c1)
             (tem-celula-branco ?baixo-de-c1)
@@ -1517,8 +1532,8 @@
         :effect (and
 
             (pacman-moveu-baixo)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
 
             (not (criatura-em pacman ?c1))
             (criatura-em pacman ?baixo-de-c1)
@@ -1532,7 +1547,7 @@
         :parameters (?c1 ?baixo-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado pacman)
+            (turno-ativado-pacman)
             (criatura-em pacman ?c1)
             (cima ?baixo-de-c1 ?c1)
             (tem-parede ?baixo-de-c1)
@@ -1547,8 +1562,8 @@
         :effect (and
 
             (pacman-moveu-baixo)
-            (turno-ativado fantasma-azul)
-            (not (turno-ativado pacman))
+            (turno-ativado-fantasma-azul)
+            (not (turno-ativado-pacman))
             (increase (total-cost) 8)
         )
     )
@@ -1566,7 +1581,7 @@
         :parameters (?c1 ?direita-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado fantasma-azul)
+            (turno-ativado-fantasma-azul)
             (criatura-em fantasma-azul ?c1)
             (direita ?c1 ?direita-de-c1)
             (pacman-moveu-esquerda)
@@ -1574,8 +1589,8 @@
         )
         
         :effect (and
-            (not (turno-ativado fantasma-azul))
-            (turno-ativado fantasma-verde) ; Passa o turno pro verde
+            (not (turno-ativado-fantasma-azul))
+            (turno-ativado-fantasma-verde) ; Passa o turno pro verde
             (not (criatura-em fantasma-azul ?c1))
             (criatura-em fantasma-azul ?direita-de-c1)
 
@@ -1587,7 +1602,7 @@
         :parameters (?c1 ?esquerda-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado fantasma-azul)
+            (turno-ativado-fantasma-azul)
             (criatura-em fantasma-azul ?c1)
             (direita ?esquerda-de-c1 ?c1)
             (pacman-moveu-direita)
@@ -1595,8 +1610,8 @@
         )
         
         :effect (and
-            (not (turno-ativado fantasma-azul))
-            (turno-ativado fantasma-verde) ; Passa o turno pro verde
+            (not (turno-ativado-fantasma-azul))
+            (turno-ativado-fantasma-verde) ; Passa o turno pro verde
             (not (criatura-em fantasma-azul ?c1))
             (criatura-em fantasma-azul ?esquerda-de-c1)
 
@@ -1608,7 +1623,7 @@
         :parameters (?c1 ?cima-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado fantasma-azul)
+            (turno-ativado-fantasma-azul)
             (criatura-em fantasma-azul ?c1)
             (cima ?c1 ?cima-de-c1)
             (pacman-moveu-baixo)
@@ -1616,8 +1631,8 @@
         )
         
         :effect (and
-            (not (turno-ativado fantasma-azul))
-            (turno-ativado fantasma-verde) ; Passa o turno pro verde
+            (not (turno-ativado-fantasma-azul))
+            (turno-ativado-fantasma-verde) ; Passa o turno pro verde
             (not (criatura-em fantasma-azul ?c1))
             (criatura-em fantasma-azul ?cima-de-c1)
         )
@@ -1628,7 +1643,7 @@
         :parameters (?c1 ?baixo-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado fantasma-azul)
+            (turno-ativado-fantasma-azul)
             (criatura-em fantasma-azul ?c1)
             (cima ?baixo-de-c1 ?c1)
             (pacman-moveu-cima)
@@ -1636,8 +1651,8 @@
         )
         
         :effect (and
-            (not (turno-ativado fantasma-azul))
-            (turno-ativado fantasma-verde) ; Passa o turno pro verde
+            (not (turno-ativado-fantasma-azul))
+            (turno-ativado-fantasma-verde) ; Passa o turno pro verde
             (not (criatura-em fantasma-azul ?c1))
             (criatura-em fantasma-azul ?baixo-de-c1)
         )
@@ -1649,7 +1664,7 @@
         :parameters (?c1 ?direita-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado fantasma-azul)
+            (turno-ativado-fantasma-azul)
             (criatura-em fantasma-azul ?c1)
             (direita ?c1 ?direita-de-c1)
             (pacman-moveu-esquerda)
@@ -1657,8 +1672,8 @@
         )
         
         :effect (and
-            (not (turno-ativado fantasma-azul))
-            (turno-ativado fantasma-verde) ; Passa o turno pro verde
+            (not (turno-ativado-fantasma-azul))
+            (turno-ativado-fantasma-verde) ; Passa o turno pro verde
         )
     )
     
@@ -1667,7 +1682,7 @@
         :parameters (?c1 ?esquerda-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado fantasma-azul)
+            (turno-ativado-fantasma-azul)
             (criatura-em fantasma-azul ?c1)
             (direita ?esquerda-de-c1 ?c1)
             (pacman-moveu-direita)
@@ -1675,8 +1690,8 @@
         )
         
         :effect (and
-            (not (turno-ativado fantasma-azul))
-            (turno-ativado fantasma-verde) ; Passa o turno pro verde
+            (not (turno-ativado-fantasma-azul))
+            (turno-ativado-fantasma-verde) ; Passa o turno pro verde
         )
     )
     
@@ -1685,7 +1700,7 @@
         :parameters (?c1 ?cima-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado fantasma-azul)
+            (turno-ativado-fantasma-azul)
             (criatura-em fantasma-azul ?c1)
             (cima ?c1 ?cima-de-c1)
             (pacman-moveu-baixo)
@@ -1693,8 +1708,8 @@
         )
         
         :effect (and
-            (not (turno-ativado fantasma-azul))
-            (turno-ativado fantasma-verde) ; Passa o turno pro verde
+            (not (turno-ativado-fantasma-azul))
+            (turno-ativado-fantasma-verde) ; Passa o turno pro verde
         )
     )
     
@@ -1703,7 +1718,7 @@
         :parameters (?c1 ?baixo-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado fantasma-azul)
+            (turno-ativado-fantasma-azul)
             (criatura-em fantasma-azul ?c1)
             (cima ?baixo-de-c1 ?c1)
             (pacman-moveu-cima)
@@ -1711,8 +1726,8 @@
         )
         
         :effect (and
-            (not (turno-ativado fantasma-azul))
-            (turno-ativado fantasma-verde) ; Passa o turno pro verde
+            (not (turno-ativado-fantasma-azul))
+            (turno-ativado-fantasma-verde) ; Passa o turno pro verde
         )
     )
 
@@ -1723,7 +1738,7 @@
         :parameters (?c1 ?direita-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado fantasma-verde)
+            (turno-ativado-fantasma-verde)
             (criatura-em fantasma-verde ?c1)
             (direita ?c1 ?direita-de-c1)
             (pacman-moveu-direita)
@@ -1731,8 +1746,8 @@
         )
         
         :effect (and
-            (not (turno-ativado fantasma-verde))
-            (turno-ativado fantasma-vermelho) ; Passa o turno pro vermelho
+            (not (turno-ativado-fantasma-verde))
+            (turno-ativado-fantasma-vermelho) ; Passa o turno pro vermelho
             (not (criatura-em fantasma-verde ?c1))
             (criatura-em fantasma-verde ?direita-de-c1)
         )
@@ -1743,7 +1758,7 @@
         :parameters (?c1 ?esquerda-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado fantasma-verde)
+            (turno-ativado-fantasma-verde)
             (criatura-em fantasma-verde ?c1)
             (direita ?esquerda-de-c1 ?c1)
             (pacman-moveu-esquerda)
@@ -1751,8 +1766,8 @@
         )
         
         :effect (and
-            (not (turno-ativado fantasma-verde))
-            (turno-ativado fantasma-vermelho) ; Passa o turno pro vermelho
+            (not (turno-ativado-fantasma-verde))
+            (turno-ativado-fantasma-vermelho) ; Passa o turno pro vermelho
             (not (criatura-em fantasma-verde ?c1))
             (criatura-em fantasma-verde ?esquerda-de-c1)
         )
@@ -1763,7 +1778,7 @@
         :parameters (?c1 ?cima-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado fantasma-verde)
+            (turno-ativado-fantasma-verde)
             (criatura-em fantasma-verde ?c1)
             (cima ?c1 ?cima-de-c1)
             (pacman-moveu-cima)
@@ -1771,8 +1786,8 @@
         )
         
         :effect (and
-            (not (turno-ativado fantasma-verde))
-            (turno-ativado fantasma-vermelho) ; Passa o turno pro vermelho
+            (not (turno-ativado-fantasma-verde))
+            (turno-ativado-fantasma-vermelho) ; Passa o turno pro vermelho
             (not (criatura-em fantasma-verde ?c1))
             (criatura-em fantasma-verde ?cima-de-c1)
         )
@@ -1783,7 +1798,7 @@
         :parameters (?c1 ?baixo-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado fantasma-verde)
+            (turno-ativado-fantasma-verde)
             (criatura-em fantasma-verde ?c1)
             (cima ?baixo-de-c1 ?c1)
             (pacman-moveu-baixo)
@@ -1791,8 +1806,8 @@
         )
         
         :effect (and
-            (not (turno-ativado fantasma-verde))
-            (turno-ativado fantasma-vermelho) ; Passa o turno pro vermelho
+            (not (turno-ativado-fantasma-verde))
+            (turno-ativado-fantasma-vermelho) ; Passa o turno pro vermelho
             (not (criatura-em fantasma-verde ?c1))
             (criatura-em fantasma-verde ?baixo-de-c1)
         )
@@ -1803,7 +1818,7 @@
         :parameters (?c1 ?direita-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado fantasma-verde)
+            (turno-ativado-fantasma-verde)
             (criatura-em fantasma-verde ?c1)
             (direita ?c1 ?direita-de-c1)
             (pacman-moveu-direita)
@@ -1811,8 +1826,8 @@
         )
         
         :effect (and
-            (not (turno-ativado fantasma-verde))
-            (turno-ativado fantasma-vermelho) ; Passa o turno pro vermelho
+            (not (turno-ativado-fantasma-verde))
+            (turno-ativado-fantasma-vermelho) ; Passa o turno pro vermelho
         )
     )
     
@@ -1821,7 +1836,7 @@
         :parameters (?c1 ?esquerda-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado fantasma-verde)
+            (turno-ativado-fantasma-verde)
             (criatura-em fantasma-verde ?c1)
             (direita ?esquerda-de-c1 ?c1)
             (pacman-moveu-esquerda)
@@ -1829,8 +1844,8 @@
         )
         
         :effect (and
-            (not (turno-ativado fantasma-verde))
-            (turno-ativado fantasma-vermelho) ; Passa o turno pro vermelho
+            (not (turno-ativado-fantasma-verde))
+            (turno-ativado-fantasma-vermelho) ; Passa o turno pro vermelho
         )
     )
     
@@ -1839,7 +1854,7 @@
         :parameters (?c1 ?cima-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado fantasma-verde)
+            (turno-ativado-fantasma-verde)
             (criatura-em fantasma-verde ?c1)
             (cima ?c1 ?cima-de-c1)
             (pacman-moveu-cima)
@@ -1847,8 +1862,8 @@
         )
         
         :effect (and
-            (not (turno-ativado fantasma-verde))
-            (turno-ativado fantasma-vermelho) ; Passa o turno pro vermelho
+            (not (turno-ativado-fantasma-verde))
+            (turno-ativado-fantasma-vermelho) ; Passa o turno pro vermelho
         )
     )
     
@@ -1857,7 +1872,7 @@
         :parameters (?c1 ?baixo-de-c1 - celula)
         
         :precondition (and
-            (turno-ativado fantasma-verde)
+            (turno-ativado-fantasma-verde)
             (criatura-em fantasma-verde ?c1)
             (cima ?baixo-de-c1 ?c1)
             (pacman-moveu-baixo)
@@ -1865,8 +1880,216 @@
         )
         
         :effect (and
-            (not (turno-ativado fantasma-verde))
-            (turno-ativado fantasma-vermelho) ; Passa o turno pro vermelho
+            (not (turno-ativado-fantasma-verde))
+            (turno-ativado-fantasma-vermelho) ; Passa o turno pro vermelho
+        )
+    )
+
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    (:action mover-fantasma-vermelho-direita
+    
+        :parameters (?c1 ?direita-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado-fantasma-vermelho)
+            (criatura-em fantasma-vermelho ?c1)
+            (direita ?c1 ?direita-de-c1)
+            (vermelho-direita)
+            (not (tem-parede ?direita-de-c1))
+        )
+        
+        :effect (and
+            (not (turno-ativado-fantasma-vermelho))
+            (not (criatura-em fantasma-vermelho ?c1))
+            (criatura-em fantasma-vermelho ?direita-de-c1)
+            (turno-ativado-pacman)
+
+            (not (contador-troca-baixo))
+            (not (contador-troca-cima))
+            (not (contador-troca-direita))
+            (not (contador-troca-esquerda))
+        )
+    )
+    
+    (:action mover-fantasma-vermelho-esquerda
+    
+        :parameters (?c1 ?esquerda-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado-fantasma-vermelho)
+            (criatura-em fantasma-vermelho ?c1)
+            (direita ?esquerda-de-c1 ?c1)
+            (vermelho-esquerda)
+            (not (tem-parede ?esquerda-de-c1))
+        )
+        
+        :effect (and
+            (not (turno-ativado-fantasma-vermelho))
+            (not (criatura-em fantasma-vermelho ?c1))
+            (criatura-em fantasma-vermelho ?esquerda-de-c1)
+            (turno-ativado-pacman)
+
+            (not (contador-troca-baixo))
+            (not (contador-troca-cima))
+            (not (contador-troca-direita))
+            (not (contador-troca-esquerda))
+        )
+    )
+    
+    (:action mover-fantasma-vermelho-cima
+    
+        :parameters (?c1 ?cima-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado-fantasma-vermelho)
+            (criatura-em fantasma-vermelho ?c1)
+            (cima ?c1 ?cima-de-c1)
+            (vermelho-cima)
+            (not (tem-parede ?cima-de-c1))
+        )
+        
+        :effect (and
+            (not (turno-ativado-fantasma-vermelho))
+            (not (criatura-em fantasma-vermelho ?c1))
+            (criatura-em fantasma-vermelho ?cima-de-c1)
+            (turno-ativado-pacman)
+
+            (not (contador-troca-baixo))
+            (not (contador-troca-cima))
+            (not (contador-troca-direita))
+            (not (contador-troca-esquerda))
+        )
+    )
+    
+    (:action mover-fantasma-vermelho-baixo
+    
+        :parameters (?c1 ?baixo-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado-fantasma-vermelho)
+            (criatura-em fantasma-vermelho ?c1)
+            (cima ?baixo-de-c1 ?c1)
+            (vermelho-baixo)
+            (not (tem-parede ?baixo-de-c1))
+        )
+        
+        :effect (and
+            (not (turno-ativado-fantasma-vermelho))
+            (not (criatura-em fantasma-vermelho ?c1))
+            (criatura-em fantasma-vermelho ?baixo-de-c1)
+            (turno-ativado-pacman)
+
+            (not (contador-troca-baixo))
+            (not (contador-troca-cima))
+            (not (contador-troca-direita))
+            (not (contador-troca-esquerda))
+        )
+    )
+
+    (:action fantasma-vermelho-dm
+    
+        :parameters ()
+        
+        :precondition (and
+            (turno-ativado-fantasma-vermelho)
+            (contador-troca-baixo)
+            (contador-troca-cima)
+            (contador-troca-direita)
+            (contador-troca-esquerda)
+        )
+        
+        :effect (and
+            (not (turno-ativado-fantasma-vermelho))
+            (turno-ativado-pacman)
+
+            (not (contador-troca-baixo))
+            (not (contador-troca-cima))
+            (not (contador-troca-direita))
+            (not (contador-troca-esquerda))
+        )
+    )
+
+
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    (:action trocar-direcao-para-baixo
+    
+        :parameters (?c1 ?direita-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado-fantasma-vermelho)
+            (criatura-em fantasma-vermelho ?c1)
+            (direita ?c1 ?direita-de-c1)
+            (vermelho-direita)
+            (tem-parede ?direita-de-c1)
+            (not (contador-troca-baixo))
+        )
+        
+        :effect (and
+            (not (vermelho-direita))
+            (vermelho-baixo)
+            (contador-troca-baixo)
+        )
+    )
+
+    (:action trocar-direcao-para-esquerda
+    
+        :parameters (?c1 ?baixo-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado-fantasma-vermelho)
+            (criatura-em fantasma-vermelho ?c1)
+            (cima ?baixo-de-c1 ?c1)
+            (vermelho-baixo)
+            (tem-parede ?baixo-de-c1)
+            (not (contador-troca-esquerda))
+        )
+        
+        :effect (and
+            (not (vermelho-baixo))
+            (vermelho-esquerda)
+            (contador-troca-esquerda)
+        )
+    )
+
+    (:action trocar-direcao-para-cima
+    
+        :parameters (?c1 ?esquerda-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado-fantasma-vermelho)
+            (criatura-em fantasma-vermelho ?c1)
+            (direita ?esquerda-de-c1 ?c1)
+            (vermelho-esquerda)
+            (tem-parede ?esquerda-de-c1)
+            (not (contador-troca-cima))
+        )
+
+        :effect (and
+            (not (vermelho-esquerda))
+            (vermelho-cima)
+            (contador-troca-cima)
+        )
+    )
+
+    (:action trocar-direcao-para-direita
+    
+        :parameters (?c1 ?cima-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado-fantasma-vermelho)
+            (criatura-em fantasma-vermelho ?c1)
+            (cima ?c1 ?cima-de-c1)
+            (vermelho-cima)
+            (tem-parede ?cima-de-c1)
+            (not (contador-troca-direita))
+        )
+        
+        :effect (and
+            (not (vermelho-cima))
+            (vermelho-direita)
+            (contador-troca-direita)
         )
     )
 )
