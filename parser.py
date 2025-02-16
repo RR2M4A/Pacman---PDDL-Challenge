@@ -1,5 +1,13 @@
 import sys
 
+PROBLEM_STR = """(define
+        (problem pacman-problem)
+        (:domain pacman-domain)
+        (:objects )
+        (:init )
+        (:goal (and )))"""
+
+
 def make_board() -> list:
 
     """Função que recebe a grid (input) e retorna ela
@@ -17,73 +25,103 @@ def get_name(line: str, col: str) -> str:
 
     """Função para padronizar os nomes de cada célula da grid."""
 
-    position_name = f"p_{line}_{col}"
-
-    return position_name
+    return f"p_{line}_{col}"
 
 
-def add_positions_info(positions_dict: dict, current_cell_name: str = '', 
-                          connected_cell_name: str = '', symbol: str = ''):
-
-    """Função única para alimentar o dicionário de células da grid com 
-    informações sobre essas células, tal como presença de pastilhas,
-    células adjacentes, presença de fantasmas, etc..."""
-
-    # Inicializa a célula no dicionário, caso ela ainda não esteja nele
-    if current_cell_name not in positions_dict:
-        positions_dict[current_cell_name] = [set(), ""]
-
-    # Alimentando o dicionário
-    if connected_cell_name:
-        positions_dict[current_cell_name][0].add(connected_cell_name)   
-    if symbol:
-        positions_dict[current_cell_name][1] = symbol
-
-
-def get_positions_info(positions_dict: dict, board: list):
-
-    """Função que define a adjacência das células"""
+def write_objs(board: list) -> str:
     
+    """Função responsável por escrever o :objects do arquivo de problema."""
+
+    objs = ""
+    for i in range(len(board)):
+        for j in range(len(board)):
+            objs += f"{get_name(i, j)} "
+
+    objs += "- celula\n"
+    return objs
+
+
+def write_init(board: list) -> str:
+    
+    """Função responsável por escrever o :init do arquivo de problema."""
+
+    init = ""
+    direita = ""
+    cima = ""
+
     for i in range(len(board)):
         for j in range(len(board[0])):
 
-            current_symbol = board[i][j]
+            current_cell = get_name(i, j)
 
-            current_position_name = get_name(i, j)
-            add_positions_info(positions_dict, current_position_name, symbol=current_symbol)
+            # ADJACÊNCIAS
 
-            # Verificando células adjacentes (direita, esquerda, cima, baixo)
-            # Cima
-            k = i - 1
-            if k >= 0:
-                adjacent_position_name = get_name(k, j)
-                add_positions_info(positions_dict, current_position_name, adjacent_position_name)
-            
-            # Baixo
-            k = i + 1
-            if k < len(board):
-                adjacent_position_name = get_name(k, j)
-                add_positions_info(positions_dict, current_position_name, adjacent_position_name)
-
-            # Direita
+            # Verifica a célula à direita
             k = j + 1
             if k < len(board[0]):
-                adjacent_position_name = get_name(i, k)
-                add_positions_info(positions_dict, current_position_name, adjacent_position_name)
+                direita += f"(direita {current_cell} {get_name(i, k)})\n"
+            
+            # Verificando a célula abaixo
+            k = i + 1
+            if k < len(board):
+                cima += f"(cima {get_name(k, j)} {current_cell})\n"
 
-            # Esquerda
-            k = j - 1
-            if k >= 0:
-                adjacent_position_name = get_name(i, k)
-                add_positions_info(positions_dict, current_position_name, adjacent_position_name)
+            # SPAWN
+
+            if board[i][j] == "#":
+                init += f"(tem-parede {current_cell})\n"
+            elif board[i][j] == "*":
+                init += f"(tem-pastilha {current_cell})\n"
+            elif board[i][j] == " ":
+                init += f"(tem-celula-branca {current_cell})\n"
+            elif board[i][j] == "I":
+                init += f"(tem-gelo {current_cell})\n"
+            elif board[i][j] == "O":
+                init += f"(tem-portal {current_cell})\n"
+            elif board[i][j] == "P":
+                init += f"(criatura-em pacman {current_cell})\n"
+            elif board[i][j] == "R":
+                init += f"(criatura-em fantasma-vermelho {current_cell})\n"
+            elif board[i][j] == "B":
+                init += f"(criatura-em fantasma-azul {current_cell})\n"
+            elif board[i][j] == "G":
+                init += f"(criatura-em fantasma-verde {current_cell})\n"
+            elif board[i][j] == "!":
+                init += f"(tem-fruta-vermelha {current_cell})\n"
+            elif board[i][j] == "@":
+                init += f"(tem-fruta-verde {current_cell})\n"
+            elif board[i][j] == "$":
+                init += f"(tem-fruta-azul {current_cell})\n"
+
+    init += "(turno-ativado-pacman)\n(vermelho-direita)\n" + direita + cima
+    return init
+
+
+def write_goal(board: list) -> str:
+
+    """Função responsável por escrever o :goal do arquivo de init"""
+    
+    # Goal da track AGILE
+    goal = "(morto fantasma-vermelho)\n(morto fantasma-azul)\n(morto-fantasma-verde)\n"
+    
+    return goal
+
+
+def write_problem(my_board: list):
+
+    objs = write_objs(my_board)
+    init = write_init(my_board)
+    goal = write_goal(my_board)
+
+    new_problem_str = PROBLEM_STR.replace("objects", f"objects \n{objs}")
+    new_problem_str = new_problem_str.replace("init", f"init \n{init}")
+    new_problem_str = new_problem_str.replace("and", f"and \n{goal}")
+
+    with open("problem.pddl", "w") as problem_file:
+        problem_file.write(new_problem_str)
 
 
 if __name__ == "__main__":
 
     my_board = make_board()
-    cells_dict = {}
-    get_positions_info(cells_dict, my_board)
-
-    for key, item in cells_dict.items():
-        print(key, item)
-
+    write_problem(my_board)
