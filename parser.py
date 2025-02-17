@@ -7,6 +7,71 @@ PROBLEM_STR = """(define
         (:init )
         (:goal (and )))"""
 
+DOMAIN_STR = """(define
+    (domain pacman-domain)
+    (:requirements :strips :typing :negative-preconditions :numeric-fluents :action-costs)
+    (:types
+        celula criatura
+    )
+    (:predicates
+        (criatura-em ?c1 - criatura ?c2 - celula)
+
+        (direita ?c1 ?c2 - celula)
+        (cima ?c1 ?c2 - celula)
+
+        ; Identifica pra qual direção o pacman se moveu
+        (pacman-moveu-direita)
+        (pacman-moveu-cima)
+        (pacman-moveu-esquerda)
+        (pacman-moveu-baixo)
+
+        ; Turnos das criaturas
+        (turno-ativado-fantasma-vermelho)
+        (turno-ativado-fantasma-verde)
+        (turno-ativado-fantasma-azul)
+        (turno-ativado-pacman)
+        
+        ; Identifica o que tem em cima da célula
+        (tem-pastilha ?c - celula)
+        (tem-fruta-azul ?c - celula)
+        (tem-fruta-verde ?c - celula)
+        (tem-fruta-vermelha ?c - celula)
+        (tem-parede ?c - celula)
+        (tem-celula-branca ?c - celula)
+        (tem-gelo ?c - celula)
+        (tem-portal ?c - celula)
+        
+        ; Fruta ativada
+        (fruta-ativada-azul)
+        (fruta-ativada-verde)
+        (fruta-ativada-vermelha)
+
+        ; Variáveis do vermelho
+        (vermelho-cima)
+        (contador-troca-cima)
+        (vermelho-baixo)
+        (contador-troca-baixo)
+        (vermelho-direita)
+        (contador-troca-direita)
+        (vermelho-esquerda)
+        (contador-troca-esquerda)
+
+        ; Condição de morte das criaturas
+        (morto ?c - criatura)
+    )
+    
+    (:functions 
+        (total-cost - number)
+    )
+    
+    (:constants 
+        pacman fantasma-verde fantasma-vermelho fantasma-azul - criatura
+    )
+
+    ;actions_here
+
+)"""
+
 
 def make_board() -> list:
 
@@ -48,6 +113,8 @@ def write_init(board: list) -> str:
     init = ""
     direita = ""
     cima = ""
+    portais = [[], []]
+    current_group = 0
 
     for i in range(len(board)):
         for j in range(len(board[0])):
@@ -77,7 +144,40 @@ def write_init(board: list) -> str:
             elif board[i][j] == "I":
                 init += f"(tem-gelo {current_cell})\n"
             elif board[i][j] == "O":
-                init += f"(tem-portal {current_cell})\n"
+                
+                # Pegando as células adjacentes
+
+                # Cima
+                k = i - 1
+                if k >= 0:
+                    portais[current_group].append(get_name(k, j))
+                else:
+                    portais[current_group].append(None)
+                
+                # Direita
+                k = j + 1
+                if k < len(board[0]):
+                    portais[current_group].append(get_name(k, j))
+                else:
+                    portais[current_group].append(None)
+
+                # Baixo
+                k = i + 1
+                if k < len(board):
+                    portais[current_group].append(get_name(k, j))
+                else:
+                    portais[current_group].append(None)
+
+                # Esquerda
+                k = j - 1
+                if k >= 0:
+                    portais[current_group].append(get_name(k, j))
+                else:
+                    portais[current_group].append(None)
+
+                portais[current_group].append(current_cell)
+                current_group += 1
+
             elif board[i][j] == "P":
                 init += f"(criatura-em pacman {current_cell})\n"
             elif board[i][j] == "R":
@@ -92,6 +192,32 @@ def write_init(board: list) -> str:
                 init += f"(tem-fruta-verde {current_cell})\n"
             elif board[i][j] == "$":
                 init += f"(tem-fruta-azul {current_cell})\n"
+
+    # Conectando as células de portal
+    if portais[0][0]:
+        init += f"(cima {portais[1][4]} {portais[0][0]})\n"
+
+    if portais[0][1]:
+        init += f"(direita {portais[1][4]} {portais[0][1]})\n"
+
+    if portais[0][2]:
+        init += f"(cima {portais[0][2]} {portais[1][4]})\n"
+
+    if portais[0][3]:
+        init += f"(direita {portais[0][3]} {portais[1][4]} )\n"
+
+    if portais[1][0]:
+        init += f"(cima {portais[0][4]} {portais[0][0]})\n"
+
+    if portais[1][1]:
+        init += f"(direita {portais[0][4]} {portais[0][1]})\n"
+
+    if portais[1][2]:
+        init += f"(cima {portais[0][2]} {portais[0][4]})\n"
+
+    if portais[1][3]:
+        init += f"(direita {portais[0][3]} {portais[0][4]} )\n"
+
 
     init += "(turno-ativado-pacman)\n(vermelho-direita)\n" + direita + cima
     return init
@@ -119,6 +245,14 @@ def write_problem(my_board: list):
 
     with open("problem.pddl", "w") as problem_file:
         problem_file.write(new_problem_str)
+
+
+def write_domain(my_board: list):
+
+    for i in range(len(board)):
+        for j in range(len(board[0])):
+            pass
+    return 
 
 
 if __name__ == "__main__":
