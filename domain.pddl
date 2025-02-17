@@ -50,6 +50,7 @@
         ; Condição de morte das criaturas
         (morto ?c - criatura)
     )
+
     
     (:functions 
         (total-cost - number)
@@ -112,6 +113,87 @@
             (increase (total-cost) 1)
         )
     )
+
+    (:action mover-pacman-direita-gelo
+    
+        :parameters (?c1 ?direita-de-c1 - celula)
+        
+        :precondition (and
+            (turno-ativado-pacman)
+            (criatura-em pacman ?c1)
+            (direita ?c1 ?direita-de-c1)
+            (tem-gelo ?direita-de-c1)
+
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (not (fruta-ativada-vermelha))
+        )
+        
+        :effect (and
+
+            (pacman-moveu-direita)
+            (not (turno-ativado-pacman))
+            (pacman-no-gelo)
+            
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?direita-de-c1)
+            (increase (total-cost) 2)
+        )
+    )
+
+    (:action mover-pacman-direita-continua-no-gelo
+    
+        :parameters (?c1 ?direita-de-c1 - celula)
+        
+        :precondition (and
+            (criatura-em pacman ?c1)
+            (direita ?c1 ?direita-de-c1)
+            (tem-gelo ?direita-de-c1)
+
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (not (fruta-ativada-vermelha))
+        )
+        
+        :effect (and
+
+            (pacman-moveu-direita)
+            (not (turno-ativado-pacman))
+            
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?direita-de-c1)
+            (increase (total-cost) 2)
+        )
+    )
+
+    (:action mover-pacman-direita-sai-do-gelo
+    
+        :parameters (?c1 ?direita-de-c1 - celula)
+        
+        :precondition (and
+            (criatura-em pacman ?c1)
+            (direita ?c1 ?direita-de-c1)
+            (tem-gelo ?c1)
+            (not (tem-gelo ?direita-de-c1))
+
+            (not (fruta-ativada-azul))
+            (not (fruta-ativada-verde))
+            (not (fruta-ativada-vermelha))
+        )
+        
+        :effect (and
+
+            (pacman-moveu-direita)
+            (not (pacman-no-gelo))
+            (not (turno-ativado-pacman))
+            (turno-ativado-fantasma-azul)
+            
+            (not (criatura-em pacman ?c1))
+            (criatura-em pacman ?direita-de-c1)
+            (increase (total-cost) 2)
+        )
+    )
+
 
     ; Movimento sem fruta ativada, para fruta azul
     (:action mover-pacman-direita-fa
