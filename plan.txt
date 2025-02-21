@@ -1,0 +1,4 @@
+STEP 0: esquerda-w(p_1_5,p_1_4)
+STEP 1: esquerda-w(p_1_4,p_1_3)
+STEP 2: esquerda-w(p_1_3,p_1_2)
+STEP 3: esquerda-w(p_1_2,p_1_1)
