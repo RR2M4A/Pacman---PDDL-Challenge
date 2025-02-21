@@ -60,6 +60,10 @@ def write_init(board: list) -> str:
     
     """Função responsável por escrever o :init do arquivo de problema."""
 
+    has_blue = False
+    has_red = False
+    has_green = False
+
     init = ""
     direita = ""
     esquerda = ""
@@ -102,22 +106,40 @@ def write_init(board: list) -> str:
             elif board[i][j] == "P":
                 init += f"(criatura-em pacman {current_cell})\n"
             elif board[i][j] == "R":
+                has_red = True
                 init += f"(criatura-em fantasma-vermelho {current_cell})\n"
             elif board[i][j] == "B":
+                has_blue = True
                 init += f"(criatura-em fantasma-azul {current_cell})\n"
             elif board[i][j] == "G":
+                has_green = True
                 init += f"(criatura-em fantasma-verde {current_cell})\n"
+            elif board[i][j] == "$":
+                init += f"(eh-fruta-azul {current_cell})\n"
+            elif board[i][j] == "@":
+                init += f"(eh-fruta-verde {current_cell})\n"
 
+    if not has_blue:
+        init += "(morte fantasma-azul)\n"
+
+    if not has_green:
+        init += "(morte fantasma-verde)\n"
+
+    if not has_red:
+        init += "(morte fantasma-vermelho)\n"
 
     init += "(turno-pacman)\n" + direita + baixo + esquerda + cima
     return init
 
 
 def write_goal(board: list) -> str:
-    return "(criatura-em pacman p_1_1)\n"
+
+    # AGILE GOAL
+    return "(morte fantasma-azul)\n(morte fantasma-verde)\n(morte fantasma-vermelho)\n"
 
 if __name__ == "__main__":
 
     my_board = make_board()
     write_problem(my_board)
     os.system("./planners/madagascar/Mp -o plan.txt -S 1 domain.pddl problem.pddl")
+    # os.system("./downward/fast-downward.py domain.pddl problem.pddl")
